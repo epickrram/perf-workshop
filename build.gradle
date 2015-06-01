@@ -1,0 +1,116 @@
+/*
+ * Copyright 2015 LMAX Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
+
+defaultTasks 'checkstyleMain', 'checkstyleTest', 'build'
+
+version = new Version(major: 0, revision: 1)
+
+ext {
+    fullName = 'Perf Workshop'
+    fullDescription = 'Perf Workshop example code'
+    teamName = ''
+    siteUrl = 'http://lmax.com'
+    sourceUrl = ''
+
+    javaCompilerExecutable = System.env['JAVA_HOME'] ? System.env['JAVA_HOME'] + '/bin/javac' : 'javac'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.lmax:disruptor:3.3.2', 'org.hdrhistogram:HdrHistogram:2.1.4', 'com.google.code.gson:gson:2.3.1', 'com.beust:jcommander:1.48', 'com.higherfrequencytrading:affinity:1.7'
+
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    baseName = project.name
+
+    manifest.attributes('Built-By': System.properties['user.name'],
+                        'Bundle-Name': fullName,
+                        'Bundle-Vendor': teamName,
+                        'Bundle-Description': fullDescription,
+                        'Bundle-DocURL': siteUrl)
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+checkstyle {
+    toolVersion = "6.3"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+class Version {
+    int major, minor = 0, revision = 0
+    boolean snapshot
+    String stage
+
+    String toString() {
+        "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
+    }
+}
+
