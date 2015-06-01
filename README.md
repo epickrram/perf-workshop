@@ -1,5 +1,5 @@
 System Jitter Utility
 =====================
 
-A test program for determining causes of jitter.
+A test program for exploring causes of jitter.
 
