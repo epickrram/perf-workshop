@@ -15,12 +15,13 @@ Using
 Output
 ======
 
-    == Accumulator Message Transit Latency ==
-    min                    108
-    50.00%                 135
-    90.00%                 159
-    99.00%                 271
-    99.90%                 511
-    99.99%                 831
-    max                  19455
+    == Accumulator Message Transit Latency (ns) ==
+    min                    136
+    50.00%                 175
+    90.00%                 191
+    99.00%                 247
+    99.90%                 319
+    99.99%                 543
+    max                  11263
     count                89991
+
