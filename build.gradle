@@ -81,10 +81,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-task fatJar(type: Jar) {
+task bundleJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-                'Implementation-Version': version
+        attributes 'Implementation-Title': 'Perf Workshop Bundle',
+                'Implementation-Version': version,
+                'Main-Class': 'com.epickrram.workshop.perf.UberMain'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

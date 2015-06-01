@@ -55,7 +55,7 @@ public final class AccumulatorReporter
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
         HISTOGRAM_REPORTER.writeReport(superHistogram,
-                "Accumulator Message Transit Latency", System.out);
+                "Accumulator Message Transit Latency (ns)", System.out);
     }
 
     private Histogram merge(final List<File> encodedHistogramsGeneratedAfterWarmup)
