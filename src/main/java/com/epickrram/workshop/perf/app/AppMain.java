@@ -18,13 +18,12 @@ package com.epickrram.workshop.perf.app;
 
 
 import com.beust.jcommander.JCommander;
-import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.epickrram.workshop.perf.app.processors.Accumulator;
 import com.epickrram.workshop.perf.app.processors.InputReader;
 import com.epickrram.workshop.perf.app.processors.Journaller;
+import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.config.Overrides;
-import com.epickrram.workshop.perf.support.Threads;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;

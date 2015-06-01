@@ -17,8 +17,8 @@ package com.epickrram.workshop.perf.app.processors;
 //////////////////////////////////////////////////////////////////////////////////
 
 
-import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.app.message.Packet;
+import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.support.NanoTimer;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.HistogramLogWriter;
@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import static com.epickrram.workshop.perf.support.Histograms.HISTOGRAMS;
-import static java.lang.Math.min;
 
 public final class Accumulator
 {
