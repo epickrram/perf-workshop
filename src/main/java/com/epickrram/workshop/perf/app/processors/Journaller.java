@@ -35,14 +35,16 @@ public final class Journaller
     private final NanoTimer nanoTimer;
     private final CommandLineArgs commandLineArgs;
     private final JournalEntry journalEntry = new JournalEntry();
+    private final boolean enabled;
 
     private FileChannel channel;
     private long position = 0;
 
-    public Journaller(final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs)
+    public Journaller(final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs, final boolean enabled)
     {
         this.nanoTimer = nanoTimer;
         this.commandLineArgs = commandLineArgs;
+        this.enabled = enabled;
     }
 
     public void init() throws IOException
@@ -72,6 +74,11 @@ public final class Journaller
 
     public void process(final Packet packet)
     {
+        if(!enabled)
+        {
+            return;
+        }
+
         if(packet.getSequenceInFile() != 0)
         {
             final long nanoTime = nanoTimer.nanoTime();

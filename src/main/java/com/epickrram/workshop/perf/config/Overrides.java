@@ -30,7 +30,9 @@ import static java.util.stream.Collectors.toList;
 
 public final class Overrides
 {
-    private static final String THREAD_AFFINITY_PREFIX = "perf.workshop.affinity.";
+    private static final String PROPERTY_PREFIX = "perf.workshop.";
+    private static final String JOURNALLER_ENABLED_KEY = PROPERTY_PREFIX + "journaller.enabled";
+    private static final String THREAD_AFFINITY_PREFIX = PROPERTY_PREFIX + "affinity.";
     private static final String PRODUCER = "producer";
     private static final String JOURNALLER = "journaller";
     private static final String ACCUMULATOR = "accumulator";
@@ -52,6 +54,7 @@ public final class Overrides
             properties.setProperty(threadAffinityKeyFor(PRODUCER), "");
             properties.setProperty(threadAffinityKeyFor(JOURNALLER), "");
             properties.setProperty(threadAffinityKeyFor(ACCUMULATOR), "");
+            properties.setProperty(JOURNALLER_ENABLED_KEY, Boolean.toString(true));
 
             try(final FileWriter writer = new FileWriter(file, false))
             {
@@ -65,6 +68,9 @@ public final class Overrides
             {
                 properties.load(reader);
             }
+
+            ensurePropertiesArePresent(JOURNALLER_ENABLED_KEY, threadAffinityKeyFor(PRODUCER),
+                    threadAffinityKeyFor(JOURNALLER), threadAffinityKeyFor(ACCUMULATOR));
         }
     }
 
@@ -81,6 +87,23 @@ public final class Overrides
     public int[] getAccumulatorThreadAffinity()
     {
         return getThreadAffinity(ACCUMULATOR);
+    }
+
+    public boolean enableJournaller()
+    {
+        return Boolean.valueOf(properties.getProperty(JOURNALLER_ENABLED_KEY));
+    }
+
+    private void ensurePropertiesArePresent(final String... requiredKeys)
+    {
+        stream(requiredKeys).forEach((key) -> {
+            if(!properties.stringPropertyNames().contains(key))
+            {
+                throw new IllegalStateException(
+                        format("Required property %s not found! Try deleting the override file, and it will be regenerated",
+                                key));
+            }
+        });
     }
 
     private int[] getThreadAffinity(final String threadName)

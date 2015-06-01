@@ -52,13 +52,13 @@ public final class AppMain
                 new Disruptor<>(new Packet.Factory(commandLineArgs.getRecordLength()), commandLineArgs.getBufferSize(),
                         newCachedThreadPool(DAEMON_THREAD_FACTORY), ProducerType.SINGLE, new BusySpinWaitStrategy());
 
-        final Histogram[] histograms = new Histogram[commandLineArgs.getNumberOfIterations()];
-        setAll(histograms, HISTOGRAMS::createHistogramForArray);
-        final Journaller journaller = new Journaller(SYSTEM_NANO_TIMER, commandLineArgs);
-        journaller.init();
-
         final Overrides overrides = new Overrides(commandLineArgs);
         overrides.init();
+
+        final Histogram[] histograms = new Histogram[commandLineArgs.getNumberOfIterations()];
+        setAll(histograms, HISTOGRAMS::createHistogramForArray);
+        final Journaller journaller = new Journaller(SYSTEM_NANO_TIMER, commandLineArgs, overrides.enableJournaller());
+        journaller.init();
 
         packetDisruptor.handleEventsWith(
                 runOnCpus(wrap(new Accumulator(histograms, SYSTEM_NANO_TIMER, commandLineArgs)::process),
