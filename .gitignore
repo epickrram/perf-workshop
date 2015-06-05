@@ -4,5 +4,4 @@ perf-workshop.iml
 
 out/
 build/
-gradle/
 .gradle/
