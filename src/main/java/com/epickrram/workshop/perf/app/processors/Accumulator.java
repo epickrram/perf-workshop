@@ -31,25 +31,34 @@ import static com.epickrram.workshop.perf.support.Histograms.HISTOGRAMS;
 
 public final class Accumulator
 {
-    private final Histogram[] histograms;
+    public static final String TRANSIT_TIME_HISTOGRAM_QUALIFIER = "transit-time";
+    public static final String INTER_MESSAGE_HISTOGRAM_QUALIFIER = "inter-message";
+
+    private final Histogram[] messageTransitTimeHistograms;
+    private final Histogram[] interMessageTimeHistograms;
     private final NanoTimer nanoTimer;
     private final CommandLineArgs commandLineArgs;
 
     private int streamNumber = 0;
+    private long previousMessageNanoTime;
 
-    public Accumulator(final Histogram[] histograms, final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs)
+    public Accumulator(final Histogram[] messageTransitTimeHistograms, final Histogram[] interMessageTimeHistograms,
+                       final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs)
     {
-        this.histograms = histograms;
+        this.messageTransitTimeHistograms = messageTransitTimeHistograms;
+        this.interMessageTimeHistograms = interMessageTimeHistograms;
         this.nanoTimer = nanoTimer;
         this.commandLineArgs = commandLineArgs;
     }
 
     public void process(final Packet packet)
     {
+        final long nanoTime = nanoTimer.nanoTime();
         if(packet.getSequenceInFile() != 0)
         {
-            final long deltaNanos = nanoTimer.nanoTime() - packet.getReceivedNanoTime();
-            HISTOGRAMS.safeRecord(deltaNanos, histograms[streamNumber]);
+            final long deltaNanos = nanoTime - packet.getReceivedNanoTime();
+            HISTOGRAMS.safeRecord(deltaNanos, messageTransitTimeHistograms[streamNumber]);
+            HISTOGRAMS.safeRecord(nanoTime - previousMessageNanoTime, interMessageTimeHistograms[streamNumber]);
         }
 
         if(packet.isLastInFile())
@@ -59,18 +68,25 @@ public final class Accumulator
 
         if(packet.isLastInStream())
         {
-            for(int i = 0; i < histograms.length; i++)
+            for(int i = 0; i < messageTransitTimeHistograms.length; i++)
             {
-                outputHistogram(histograms[i], i);
+                outputHistogram(messageTransitTimeHistograms[i], i, TRANSIT_TIME_HISTOGRAM_QUALIFIER);
+            }
+
+            for(int i = 0; i < interMessageTimeHistograms.length; i++)
+            {
+                outputHistogram(interMessageTimeHistograms[i], i, INTER_MESSAGE_HISTOGRAM_QUALIFIER);
             }
         }
+
+        previousMessageNanoTime = nanoTime;
     }
 
-    private void outputHistogram(final Histogram histogram, final int streamNumber)
+    private void outputHistogram(final Histogram histogram, final int streamNumber, final String qualifier)
     {
         try
         {
-            try(final PrintStream printStream = new PrintStream(getHistogramOutputFile(commandLineArgs, streamNumber)))
+            try(final PrintStream printStream = new PrintStream(getHistogramOutputFile(commandLineArgs, streamNumber, qualifier)))
             {
                 new HistogramLogWriter(printStream).outputIntervalHistogram(streamNumber, streamNumber + 1, histogram, 1d);
             }
@@ -81,8 +97,9 @@ public final class Accumulator
         }
     }
 
-    private static File getHistogramOutputFile(final CommandLineArgs commandLineArgs, final int streamNumber)
+    private static File getHistogramOutputFile(final CommandLineArgs commandLineArgs, final int streamNumber, final String qualifier)
     {
-        return new File(commandLineArgs.getOutputDir(), "perf-workshop-accumulator-histogram-" + streamNumber + ".enc");
+        return new File(commandLineArgs.getOutputDir(), "perf-workshop-" +
+                "accumulator-histogram-" + qualifier + "-" + streamNumber + ".enc");
     }
 }

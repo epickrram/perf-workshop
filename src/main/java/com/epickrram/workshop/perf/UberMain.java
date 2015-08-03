@@ -17,7 +17,9 @@ package com.epickrram.workshop.perf;
 //////////////////////////////////////////////////////////////////////////////////
 
 
+import com.beust.jcommander.JCommander;
 import com.epickrram.workshop.perf.app.AppMain;
+import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.reporting.PostProcess;
 import com.epickrram.workshop.perf.setup.InputGenerator;
 
@@ -25,6 +27,15 @@ public final class UberMain
 {
     public static void main(final String[] args) throws Exception
     {
+        final CommandLineArgs commandLineArgs = new CommandLineArgs();
+        final JCommander jCommander = new JCommander(commandLineArgs);
+        jCommander.parse(args);
+        if(commandLineArgs.isHelp())
+        {
+            jCommander.usage();
+            System.exit(0);
+        }
+
         InputGenerator.main(args);
         AppMain.main(args);
         PostProcess.main(args);

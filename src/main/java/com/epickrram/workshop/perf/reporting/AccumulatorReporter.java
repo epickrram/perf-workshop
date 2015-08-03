@@ -18,6 +18,7 @@ package com.epickrram.workshop.perf.reporting;
 
 
 import com.beust.jcommander.JCommander;
+import com.epickrram.workshop.perf.app.processors.Accumulator;
 import com.epickrram.workshop.perf.config.CommandLineArgs;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.HistogramLogReader;
@@ -37,7 +38,6 @@ import static java.util.stream.Collectors.toList;
 public final class AccumulatorReporter
 {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^[^0-9]+\\-([0-9]+)\\.enc$");
-    private static final int WARMUP_THRESHOLD = 10;
 
     private final CommandLineArgs commandLineArgs;
 
@@ -48,14 +48,22 @@ public final class AccumulatorReporter
 
     public void run() throws IOException
     {
+        reportHistogram("Accumulator Inter-Message Latency (ns)", Accumulator.INTER_MESSAGE_HISTOGRAM_QUALIFIER);
+        reportHistogram("Accumulator Message Transit Latency (ns)", Accumulator.TRANSIT_TIME_HISTOGRAM_QUALIFIER);
+    }
+
+    private void reportHistogram(final String histogramTitle, final String histogramQualifier) throws IOException
+    {
         final List<File> encodedHistogramsGeneratedAfterWarmup = stream(new File(commandLineArgs.getOutputDir()).listFiles()).
                 filter((file) -> file.getName().endsWith(".enc")).
+                filter((file) -> {
+                    return file.getName().contains(histogramQualifier);
+                }).
                 filter(this::isAfterWarmup).collect(toList());
 
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
-        HISTOGRAM_REPORTER.writeReport(superHistogram,
-                "Accumulator Message Transit Latency (ns)", System.out);
+        HISTOGRAM_REPORTER.writeReport(superHistogram, histogramTitle, System.out);
     }
 
     private Histogram merge(final List<File> encodedHistogramsGeneratedAfterWarmup)
@@ -84,7 +92,7 @@ public final class AccumulatorReporter
     private boolean isAfterWarmup(final File file)
     {
         final Matcher matcher = NUMBER_PATTERN.matcher(file.getName());
-        return matcher.find() && Integer.parseInt(matcher.group(1)) > WARMUP_THRESHOLD;
+        return matcher.find() && Integer.parseInt(matcher.group(1)) > commandLineArgs.getNumberOfWarmups();
     }
 
     public static void main(final String[] args) throws Exception

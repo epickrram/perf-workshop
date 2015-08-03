@@ -37,21 +37,21 @@ public final class InputReader
     private final RingBuffer<Packet> messageSink;
     private final NanoTimer nanoTimer;
     private final CommandLineArgs commandLineArgs;
-    private final int numberOfTimesToExecute;
+    private final int numberOfIterations;
 
     public InputReader(final RingBuffer<Packet> messageSink, final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs)
     {
         this.messageSink = messageSink;
         this.nanoTimer = nanoTimer;
         this.commandLineArgs = commandLineArgs;
-        this.numberOfTimesToExecute = commandLineArgs.getNumberOfIterations();
+        this.numberOfIterations = commandLineArgs.getNumberOfIterations();
     }
 
     public void processFiles()
     {
-        for(int i = 0; i < numberOfTimesToExecute; i++)
+        for(int i = 0; i < numberOfIterations; i++)
         {
-            processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfTimesToExecute - 1);
+            processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);
         }
     }
 

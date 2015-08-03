@@ -45,7 +45,7 @@ public final class JournalReporter
         final FileChannel channel = open(new File(commandLineArgs.getJournalFile()).toPath(), READ);
         final Histogram interMessageLatency = HISTOGRAMS.createHistogram();
         final Histogram messageTransitLatency = HISTOGRAMS.createHistogram();
-        final int numberOfEntriesToIgnoreDueToWarmup = 10 * commandLineArgs.getNumberOfRecords();
+        final int numberOfEntriesToIgnoreDueToWarmup = commandLineArgs.getNumberOfWarmups() * commandLineArgs.getNumberOfRecords();
 
         final JournalEntry journalEntry = new JournalEntry();
         long previousMessageNanos = 0L;

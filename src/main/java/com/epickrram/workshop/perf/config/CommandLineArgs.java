@@ -27,6 +27,8 @@ public final class CommandLineArgs
 {
     @Parameter(names = "-i", description = "number of iterations")
     private int numberOfIterations = 20;
+    @Parameter(names = "-w", description = "number of warm-ups")
+    private int numberOfWarmups = 10;
     @Parameter(names = "-r", description = "number of records per input file")
     private int numberOfRecords = 10000;
     @Parameter(names = "-l", description = "length of record (bytes)")
@@ -41,6 +43,8 @@ public final class CommandLineArgs
     private String outputDir = getTmpDirectory();
     @Parameter(names = "-o", description = "overrides file (default: /tmp/perf-workshop.properties)")
     private String overrideFile = getTmpDirectory() + File.separator + "perf-workshop.properties";
+    @Parameter(names = "-h", description = "print help and exit", help = true)
+    private boolean help;
 
     public int getBufferSize()
     {
@@ -55,6 +59,11 @@ public final class CommandLineArgs
     public int getNumberOfIterations()
     {
         return numberOfIterations;
+    }
+
+    public int getNumberOfWarmups()
+    {
+        return numberOfWarmups;
     }
 
     public int getNumberOfRecords()
@@ -85,5 +94,10 @@ public final class CommandLineArgs
     public String getOverrideFile()
     {
         return overrideFile;
+    }
+
+    public boolean isHelp()
+    {
+        return help;
     }
 }

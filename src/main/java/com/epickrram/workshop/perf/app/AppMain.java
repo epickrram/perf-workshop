@@ -55,13 +55,16 @@ public final class AppMain
         final Overrides overrides = new Overrides(commandLineArgs);
         overrides.init();
 
-        final Histogram[] histograms = new Histogram[commandLineArgs.getNumberOfIterations()];
-        setAll(histograms, HISTOGRAMS::createHistogramForArray);
         final Journaller journaller = new Journaller(SYSTEM_NANO_TIMER, commandLineArgs, overrides.enableJournaller());
         journaller.init();
 
+        final Histogram[] messageTransitTimeHistograms = new Histogram[commandLineArgs.getNumberOfIterations()];
+        setAll(messageTransitTimeHistograms, HISTOGRAMS::createHistogramForArray);
+        final Histogram[] interMessageTimeHistograms = new Histogram[commandLineArgs.getNumberOfIterations()];
+        setAll(interMessageTimeHistograms, HISTOGRAMS::createHistogramForArray);
+
         packetDisruptor.handleEventsWith(
-                runOnCpus(wrap(new Accumulator(histograms, SYSTEM_NANO_TIMER, commandLineArgs)::process),
+                runOnCpus(wrap(new Accumulator(messageTransitTimeHistograms, interMessageTimeHistograms, SYSTEM_NANO_TIMER, commandLineArgs)::process),
                         overrides.getAccumulatorThreadAffinity()),
                 runOnCpus(wrap(journaller::process), overrides.getJournallerThreadAffinity()));
 
