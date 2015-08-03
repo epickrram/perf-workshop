@@ -17,7 +17,9 @@ package com.epickrram.workshop.perf.support;
 //////////////////////////////////////////////////////////////////////////////////
 
 
-import static com.higherfrequencytrading.affinity.AffinitySupport.setAffinity;
+import net.openhft.affinity.Affinity;
+
+import java.util.BitSet;
 
 public enum Threads
 {
@@ -35,19 +37,24 @@ public enum Threads
     {
         if(cpus != null && cpus.length != 0)
         {
-            setAffinity(cpuListToBitMask(cpus));
+            Affinity.setAffinity(cpuListToBitMask(cpus));
         }
     }
 
-    private long cpuListToBitMask(final int[] cpus)
+    public int getCurrentThreadId()
     {
-        long bitMask = 0L;
+        return Affinity.getThreadId();
+    }
+
+    private BitSet cpuListToBitMask(final int[] cpus)
+    {
+        final BitSet bitSet = new BitSet();
 
         for(int cpu : cpus)
         {
-            bitMask |= 1L << cpu;
+            bitSet.set(cpu);
         }
 
-        return bitMask;
+        return bitSet;
     }
 }

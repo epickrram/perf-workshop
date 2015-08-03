@@ -20,17 +20,20 @@ package com.epickrram.workshop.perf.app.processors;
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.LifecycleAware;
+import net.openhft.affinity.Affinity;
 
 import static com.epickrram.workshop.perf.support.Threads.THREADS;
 
 public final class ThreadAffinityEventHandler implements EventHandler<Packet>, LifecycleAware
 {
     private final EventHandler<Packet> delegate;
+    private final String processName;
     private final int[] cpuAffinity;
 
-    private ThreadAffinityEventHandler(final EventHandler<Packet> delegate, final int... cpuAffinity)
+    private ThreadAffinityEventHandler(final EventHandler<Packet> delegate, final String processName, final int... cpuAffinity)
     {
         this.delegate = delegate;
+        this.processName = processName;
         this.cpuAffinity = cpuAffinity;
     }
 
@@ -43,15 +46,16 @@ public final class ThreadAffinityEventHandler implements EventHandler<Packet>, L
     @Override
     public void onStart()
     {
+        System.out.println(processName + " thread has pid: " + THREADS.getCurrentThreadId());
         if(cpuAffinity != null && cpuAffinity.length != 0)
         {
             THREADS.setCurrentThreadAffinity(cpuAffinity);
         }
     }
 
-    public static EventHandler<Packet> runOnCpus(final EventHandler<Packet> delegate, final int... cpus)
+    public static EventHandler<Packet> runOnCpus(final EventHandler<Packet> delegate, final String processName, final int... cpus)
     {
-        return new ThreadAffinityEventHandler(delegate, cpus);
+        return new ThreadAffinityEventHandler(delegate, processName, cpus);
     }
 
     @Override

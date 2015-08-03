@@ -27,15 +27,16 @@ import static java.nio.ByteBuffer.allocateDirect;
 public final class JournalEntry
 {
     public static final int ENTRY_MAGIC_NUMBER = 0x55555555;
-    public static final int ENTRY_SIZE = 4 + 8 + 8;
+    public static final int ENTRY_SIZE = 4 + 8 + 8 + 8;
 
     private final ByteBuffer buffer = allocateDirect(ENTRY_SIZE);
 
-    public void set(final long nanoTime, final long deltaNanos)
+    public void set(final long publisherNanoTime, final long journallerNanoTime, final long deltaNanos)
     {
         buffer.clear();
         buffer.putInt(ENTRY_MAGIC_NUMBER);
-        buffer.putLong(nanoTime);
+        buffer.putLong(publisherNanoTime);
+        buffer.putLong(journallerNanoTime);
         buffer.putLong(deltaNanos);
         buffer.flip();
     }
@@ -53,14 +54,19 @@ public final class JournalEntry
         buffer.flip();
     }
 
-    public long getNanoTime()
+    public long getPublisherNanoTime()
     {
         return buffer.getLong(4);
     }
 
-    public long getDeltaNanos()
+    public long getJournallerNanoTime()
     {
         return buffer.getLong(12);
+    }
+
+    public long getDeltaNanos()
+    {
+        return buffer.getLong(20);
     }
 
     public boolean canRead()

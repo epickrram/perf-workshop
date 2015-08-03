@@ -41,6 +41,8 @@ public final class InputGenerator
         new JCommander(commandLineArgs).parse(args);
 
         new InputGenerator(commandLineArgs).run();
+
+        System.out.printf("Created input journal of %dkb%n", (commandLineArgs.getNumberOfRecords() * commandLineArgs.getRecordLength() / 1024));
     }
 
     private void run() throws IOException

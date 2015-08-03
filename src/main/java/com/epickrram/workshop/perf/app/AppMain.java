@@ -30,6 +30,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.HdrHistogram.Histogram;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static com.epickrram.workshop.perf.app.processors.EventHandlerAdapter.wrap;
@@ -65,12 +66,15 @@ public final class AppMain
 
         packetDisruptor.handleEventsWith(
                 runOnCpus(wrap(new Accumulator(messageTransitTimeHistograms, interMessageTimeHistograms, SYSTEM_NANO_TIMER, commandLineArgs)::process),
-                        overrides.getAccumulatorThreadAffinity()),
-                runOnCpus(wrap(journaller::process), overrides.getJournallerThreadAffinity()));
+                        "Accumulator", overrides.getAccumulatorThreadAffinity()),
+                runOnCpus(wrap(journaller::process), "Journaller", overrides.getJournallerThreadAffinity()));
 
         packetDisruptor.start();
 
         final InputReader inputReader = new InputReader(packetDisruptor.getRingBuffer(), SYSTEM_NANO_TIMER, commandLineArgs);
+
+        System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
+        System.out.println("Starting replay at " + new Date());
 
         final Thread thread = DAEMON_THREAD_FACTORY.newThread(THREADS.runOnCpu(inputReader::processFiles,
                 overrides.getProducerThreadAffinity()));
@@ -79,6 +83,7 @@ public final class AppMain
         try
         {
             thread.join();
+            System.out.println("Finished replay at " + new Date());
             packetDisruptor.shutdown(1, TimeUnit.MINUTES);
         }
         catch (TimeoutException e)

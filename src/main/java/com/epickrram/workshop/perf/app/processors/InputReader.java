@@ -25,6 +25,7 @@ import com.lmax.disruptor.RingBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -51,6 +52,10 @@ public final class InputReader
     {
         for(int i = 0; i < numberOfIterations; i++)
         {
+            if(i == commandLineArgs.getNumberOfWarmups())
+            {
+                System.out.println("Warm-up complete at " + new Date());
+            }
             processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);
         }
     }

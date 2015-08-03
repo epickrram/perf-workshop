@@ -43,12 +43,14 @@ public final class JournalReporter
     public void run() throws IOException
     {
         final FileChannel channel = open(new File(commandLineArgs.getJournalFile()).toPath(), READ);
-        final Histogram interMessageLatency = HISTOGRAMS.createHistogram();
+        final Histogram journallerInterMessageLatency = HISTOGRAMS.createHistogram();
         final Histogram messageTransitLatency = HISTOGRAMS.createHistogram();
+        final Histogram publisherInterMessageLatency = HISTOGRAMS.createHistogram();
         final int numberOfEntriesToIgnoreDueToWarmup = commandLineArgs.getNumberOfWarmups() * commandLineArgs.getNumberOfRecords();
 
         final JournalEntry journalEntry = new JournalEntry();
-        long previousMessageNanos = 0L;
+        long previousMessageJournallerNanos = 0L;
+        long previousMessagePublisherNanos = 0L;
         int messageCount = 0;
 
         while(channel.position() < channel.size() - JournalEntry.ENTRY_SIZE)
@@ -63,16 +65,20 @@ public final class JournalReporter
             if(++messageCount > numberOfEntriesToIgnoreDueToWarmup)
             {
                 HISTOGRAMS.safeRecord(journalEntry.getDeltaNanos(), messageTransitLatency);
-                if (previousMessageNanos != 0L)
+                if (previousMessageJournallerNanos != 0L)
                 {
-                    HISTOGRAMS.safeRecord(journalEntry.getNanoTime() - previousMessageNanos, interMessageLatency);
+                    HISTOGRAMS.safeRecord(journalEntry.getJournallerNanoTime() - previousMessageJournallerNanos, journallerInterMessageLatency);
+                    HISTOGRAMS.safeRecord(journalEntry.getPublisherNanoTime() - previousMessagePublisherNanos, publisherInterMessageLatency);
                 }
 
-                previousMessageNanos = journalEntry.getNanoTime();
+                previousMessageJournallerNanos = journalEntry.getJournallerNanoTime();
+                previousMessagePublisherNanos = journalEntry.getPublisherNanoTime();
             }
         }
 
-        HISTOGRAM_REPORTER.writeReport(interMessageLatency,
+        HISTOGRAM_REPORTER.writeReport(publisherInterMessageLatency,
+                "Publisher Inter-Message Latency (ns)", System.out);
+        HISTOGRAM_REPORTER.writeReport(journallerInterMessageLatency,
                 "Journaller Inter-Message Latency (ns)", System.out);
         HISTOGRAM_REPORTER.writeReport(messageTransitLatency,
                 "Journaller Message Transit Latency (ns)", System.out);
