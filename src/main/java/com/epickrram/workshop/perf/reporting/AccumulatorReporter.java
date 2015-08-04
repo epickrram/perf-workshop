@@ -64,6 +64,7 @@ public final class AccumulatorReporter
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
         HISTOGRAM_REPORTER.writeReport(superHistogram, histogramTitle, System.out);
+        HISTOGRAM_REPORTER.shortReport(superHistogram, System.out);
     }
 
     private Histogram merge(final List<File> encodedHistogramsGeneratedAfterWarmup)

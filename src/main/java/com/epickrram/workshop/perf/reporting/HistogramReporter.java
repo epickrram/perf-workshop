@@ -45,4 +45,19 @@ public enum HistogramReporter
         printWriter.append("\n");
         printWriter.flush();
     }
+
+    public void shortReport(final Histogram histogram, final PrintStream out) throws IOException
+    {
+        final PrintWriter printWriter = new PrintWriter(out);
+        printWriter.append(format("%d,", histogram.getMinValue()));
+        printWriter.append(format("%d,", histogram.getValueAtPercentile(50.0d)));
+        printWriter.append(format("%d,", histogram.getValueAtPercentile(90.0d)));
+        printWriter.append(format("%d,", histogram.getValueAtPercentile(99.0d)));
+        printWriter.append(format("%d,", histogram.getValueAtPercentile(99.9d)));
+        printWriter.append(format("%d,", histogram.getValueAtPercentile(99.99d)));
+        printWriter.append(format("%d,", histogram.getMaxValue()));
+        printWriter.append(format("%d%n", histogram.getTotalCount()));
+        printWriter.append("\n");
+        printWriter.flush();
+    }
 }

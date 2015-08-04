@@ -19,6 +19,7 @@ package com.epickrram.workshop.perf.support;
 
 import net.openhft.affinity.Affinity;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 public enum Threads
@@ -44,6 +45,8 @@ public enum Threads
             {
                 throw new IllegalStateException("Unable to set CPU affinity");
             }
+
+            System.out.println("Set affinity for thread " + Thread.currentThread().getName() + " to " + Arrays.toString(cpus));
         }
     }
 

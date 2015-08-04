@@ -78,10 +78,15 @@ public final class JournalReporter
 
         HISTOGRAM_REPORTER.writeReport(publisherInterMessageLatency,
                 "Publisher Inter-Message Latency (ns)", System.out);
+        HISTOGRAM_REPORTER.shortReport(publisherInterMessageLatency, System.out);
+
         HISTOGRAM_REPORTER.writeReport(journallerInterMessageLatency,
                 "Journaller Inter-Message Latency (ns)", System.out);
+        HISTOGRAM_REPORTER.shortReport(journallerInterMessageLatency, System.out);
+
         HISTOGRAM_REPORTER.writeReport(messageTransitLatency,
                 "Journaller Message Transit Latency (ns)", System.out);
+        HISTOGRAM_REPORTER.shortReport(messageTransitLatency, System.out);
     }
 
     public static void main(final String[] args) throws Exception

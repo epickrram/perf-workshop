@@ -91,6 +91,7 @@ task bundleJar(type: Jar) {
     with jar
 }
 
+// java -Xmx4g -Xms4g -XX:+UnlockDiagnosticVMOptions -XX:GuaranteedSafepointInterval=300000 -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+PrintTenuringDistribution -XX:+PrintSafepointStatistics -XX:-UseBiasedLocking -Xloggc:perf-workshop-gc.log -jar ./build/libs/perf-workshop-all-0.0.1.jar -i 10000 -w 1000 -r 400
 
 artifacts {
     archives sourcesJar, javadocJar
