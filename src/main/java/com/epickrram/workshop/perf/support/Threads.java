@@ -37,7 +37,13 @@ public enum Threads
     {
         if(cpus != null && cpus.length != 0)
         {
-            Affinity.setAffinity(cpuListToBitMask(cpus));
+            final BitSet requiredAffinity = cpuListToBitMask(cpus);
+            Affinity.setAffinity(requiredAffinity);
+
+            if(!requiredAffinity.equals(Affinity.getAffinity()))
+            {
+                throw new IllegalStateException("Unable to set CPU affinity");
+            }
         }
     }
 

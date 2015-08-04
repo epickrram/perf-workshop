@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
+import static com.epickrram.workshop.perf.support.Threads.THREADS;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.open;
 import static java.nio.file.StandardOpenOption.READ;
@@ -50,6 +51,7 @@ public final class InputReader
 
     public void processFiles()
     {
+        System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
         for(int i = 0; i < numberOfIterations; i++)
         {
             if(i == commandLineArgs.getNumberOfWarmups())
@@ -72,6 +74,10 @@ public final class InputReader
 
             for(int recordIndex = 0; recordIndex < commandLineArgs.getNumberOfRecords(); recordIndex++)
             {
+                if(!messageSink.hasAvailableCapacity(1))
+                {
+                    throw new RuntimeException("RingBuffer full!");
+                }
                 final long sequence = messageSink.next();
 
                 try

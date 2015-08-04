@@ -74,7 +74,6 @@ public final class AppMain
 
         final InputReader inputReader = new InputReader(packetDisruptor.getRingBuffer(), SYSTEM_NANO_TIMER, commandLineArgs);
 
-        System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
         System.out.println("Starting replay at " + new Date());
 
         final Thread thread = DAEMON_THREAD_FACTORY.newThread(THREADS.runOnCpu(inputReader::processFiles,
