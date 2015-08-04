@@ -57,7 +57,7 @@ public final class InputReader
                 System.out.println("Warm-up complete at " + new Date());
                 System.out.println("Pausing for 10 seconds...");
                 LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10L));
-                System.out.println("Executing test...");
+                System.out.println("Executing test at " + new Date());
             }
             processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);
         }
