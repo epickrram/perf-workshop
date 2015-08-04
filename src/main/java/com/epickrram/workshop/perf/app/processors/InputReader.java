@@ -55,6 +55,9 @@ public final class InputReader
             if(i == commandLineArgs.getNumberOfWarmups())
             {
                 System.out.println("Warm-up complete at " + new Date());
+                System.out.println("Pausing for 10 seconds...");
+                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10L));
+                System.out.println("Executing test...");
             }
             processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);
         }
@@ -89,13 +92,22 @@ public final class InputReader
                 {
                     messageSink.publish(sequence);
                 }
-                LockSupport.parkNanos(TimeUnit.MICROSECONDS.toNanos(10L));
+                introduceMessagePublishDelay();
             }
 
         }
         catch (IOException e)
         {
             throw new RuntimeException("File operation failed", e);
+        }
+    }
+
+    private void introduceMessagePublishDelay()
+    {
+        final long stopSpinningAt = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(10L);
+        while(System.nanoTime() < stopSpinningAt)
+        {
+            // spin
         }
     }
 }

@@ -65,7 +65,7 @@ public final class JournalReporter
             if(++messageCount > numberOfEntriesToIgnoreDueToWarmup)
             {
                 HISTOGRAMS.safeRecord(journalEntry.getDeltaNanos(), messageTransitLatency);
-                if (previousMessageJournallerNanos != 0L)
+                if (previousMessageJournallerNanos != 0L && journalEntry.getSequenceInFile() != 0)
                 {
                     HISTOGRAMS.safeRecord(journalEntry.getJournallerNanoTime() - previousMessageJournallerNanos, journallerInterMessageLatency);
                     HISTOGRAMS.safeRecord(journalEntry.getPublisherNanoTime() - previousMessagePublisherNanos, publisherInterMessageLatency);

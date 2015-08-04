@@ -79,14 +79,11 @@ public final class Journaller
             return;
         }
 
-        if(packet.getSequenceInFile() != 0)
-        {
-            final long journallerNanoTime = nanoTimer.nanoTime();
-            final long deltaNanos = journallerNanoTime - packet.getReceivedNanoTime();
-            writeEntry(packet.getReceivedNanoTime(), journallerNanoTime, deltaNanos);
+        final long journallerNanoTime = nanoTimer.nanoTime();
+        final long deltaNanos = journallerNanoTime - packet.getReceivedNanoTime();
+        writeEntry(packet.getReceivedNanoTime(), journallerNanoTime, deltaNanos, packet.getSequenceInFile());
 
-            position += JournalEntry.ENTRY_SIZE;
-        }
+        position += JournalEntry.ENTRY_SIZE;
 
         if(packet.isLastInStream())
         {
@@ -94,11 +91,11 @@ public final class Journaller
         }
     }
 
-    private void writeEntry(final long publisherNanoTime, final long nanoTime, final long deltaNanos)
+    private void writeEntry(final long publisherNanoTime, final long nanoTime, final long deltaNanos, final int sequenceInFile)
     {
         try
         {
-            journalEntry.set(publisherNanoTime, nanoTime, deltaNanos);
+            journalEntry.set(publisherNanoTime, nanoTime, deltaNanos, sequenceInFile);
             channel.position(position);
             journalEntry.writeTo(channel);
         }

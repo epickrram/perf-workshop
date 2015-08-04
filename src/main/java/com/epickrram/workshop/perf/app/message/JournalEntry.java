@@ -27,17 +27,18 @@ import static java.nio.ByteBuffer.allocateDirect;
 public final class JournalEntry
 {
     public static final int ENTRY_MAGIC_NUMBER = 0x55555555;
-    public static final int ENTRY_SIZE = 4 + 8 + 8 + 8;
+    public static final int ENTRY_SIZE = 4 + 8 + 8 + 8 + 4;
 
     private final ByteBuffer buffer = allocateDirect(ENTRY_SIZE);
 
-    public void set(final long publisherNanoTime, final long journallerNanoTime, final long deltaNanos)
+    public void set(final long publisherNanoTime, final long journallerNanoTime, final long deltaNanos, final int sequenceInFile)
     {
         buffer.clear();
         buffer.putInt(ENTRY_MAGIC_NUMBER);
         buffer.putLong(publisherNanoTime);
         buffer.putLong(journallerNanoTime);
         buffer.putLong(deltaNanos);
+        buffer.putInt(sequenceInFile);
         buffer.flip();
     }
 
@@ -69,6 +70,11 @@ public final class JournalEntry
         return buffer.getLong(20);
     }
 
+    public int getSequenceInFile()
+    {
+        return buffer.getInt(28);
+    }
+
     public boolean canRead()
     {
         return buffer.getInt(0) == ENTRY_MAGIC_NUMBER && buffer.limit() == ENTRY_SIZE;
@@ -80,5 +86,15 @@ public final class JournalEntry
         {
             throw new IllegalStateException("Buffer is in inconsistent state for writing");
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "JournalEntry{" +
+                "published: " + getPublisherNanoTime() +
+                ", journalled: " + getJournallerNanoTime() +
+                ", sequence: " + getSequenceInFile() +
+                "}";
     }
 }

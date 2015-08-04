@@ -34,7 +34,7 @@ public enum Histograms
 
     public Histogram createHistogram()
     {
-        return new Histogram(TimeUnit.SECONDS.toNanos(1L), 1);
+        return new Histogram(TimeUnit.SECONDS.toNanos(1L), 5);
     }
 
     public void safeRecord(final long value, final Histogram histogram)
