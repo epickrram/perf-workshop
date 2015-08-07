@@ -52,6 +52,12 @@ public final class AccumulatorReporter
         reportHistogram("Accumulator Message Transit Latency (ns)", Accumulator.TRANSIT_TIME_HISTOGRAM_QUALIFIER);
     }
 
+    public void cleanUp() throws IOException
+    {
+        stream(new File(commandLineArgs.getOutputDir()).listFiles()).
+                filter((file) -> file.getName().endsWith(".enc")).forEach(File::delete);
+    }
+
     private void reportHistogram(final String histogramTitle, final String histogramQualifier) throws IOException
     {
         final List<File> encodedHistogramsGeneratedAfterWarmup = stream(new File(commandLineArgs.getOutputDir()).listFiles()).
@@ -101,6 +107,8 @@ public final class AccumulatorReporter
         final CommandLineArgs commandLineArgs = new CommandLineArgs();
         new JCommander(commandLineArgs).parse(args);
 
-        new AccumulatorReporter(commandLineArgs).run();
+        final AccumulatorReporter accumulatorReporter = new AccumulatorReporter(commandLineArgs);
+        accumulatorReporter.run();
+        accumulatorReporter.cleanUp();
     }
 }
