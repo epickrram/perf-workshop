@@ -26,6 +26,7 @@ import org.HdrHistogram.HistogramLogReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,7 +56,17 @@ public final class AccumulatorReporter
     public void cleanUp() throws IOException
     {
         stream(new File(commandLineArgs.getOutputDir()).listFiles()).
-                filter((file) -> file.getName().endsWith(".enc")).forEach(File::delete);
+                filter((file) -> file.getName().endsWith(".enc")).forEach((file) -> {
+
+            try
+            {
+                Files.delete(file.toPath());
+            }
+            catch (IOException e)
+            {
+                // ignore
+            }
+        });
     }
 
     private void reportHistogram(final String histogramTitle, final String histogramQualifier) throws IOException
