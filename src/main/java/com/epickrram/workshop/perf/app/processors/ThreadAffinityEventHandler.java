@@ -20,7 +20,6 @@ package com.epickrram.workshop.perf.app.processors;
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.LifecycleAware;
-import net.openhft.affinity.Affinity;
 
 import static com.epickrram.workshop.perf.support.Threads.THREADS;
 

@@ -17,8 +17,8 @@ package com.epickrram.workshop.perf.app.processors;
 //////////////////////////////////////////////////////////////////////////////////
 
 
-import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.app.message.Packet;
+import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.support.NanoTimer;
 import com.lmax.disruptor.RingBuffer;
 
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 
 import static com.epickrram.workshop.perf.support.Threads.THREADS;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
@@ -59,7 +58,7 @@ public final class InputReader
                 System.out.println("Warm-up complete at " + new Date());
                 System.gc();
                 System.out.println("Pausing for 10 seconds...");
-                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10L));
+                THREADS.sleep(10L, TimeUnit.SECONDS);
                 System.out.println("Executing test at " + new Date());
             }
             processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);

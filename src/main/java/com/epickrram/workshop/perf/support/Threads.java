@@ -21,6 +21,7 @@ import net.openhft.affinity.Affinity;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.concurrent.TimeUnit;
 
 public enum Threads
 {
@@ -53,6 +54,18 @@ public enum Threads
     public int getCurrentThreadId()
     {
         return Affinity.getThreadId();
+    }
+
+    public void sleep(final long duration, final TimeUnit unit)
+    {
+        try
+        {
+            Thread.sleep(unit.toMillis(duration));
+        }
+        catch (InterruptedException e)
+        {
+            throw new RuntimeException("Interrupted during sleep!");
+        }
     }
 
     private BitSet cpuListToBitMask(final int[] cpus)

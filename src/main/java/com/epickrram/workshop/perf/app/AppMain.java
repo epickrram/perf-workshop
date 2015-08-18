@@ -32,7 +32,6 @@ import org.HdrHistogram.Histogram;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 
 import static com.epickrram.workshop.perf.app.processors.EventHandlerAdapter.wrap;
 import static com.epickrram.workshop.perf.app.processors.ThreadAffinityEventHandler.runOnCpus;
@@ -96,6 +95,6 @@ public final class AppMain
         }
 
         System.out.println("Pausing for 10 seconds...");
-        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10L));
+        THREADS.sleep(10L, TimeUnit.SECONDS);
     }
 }
