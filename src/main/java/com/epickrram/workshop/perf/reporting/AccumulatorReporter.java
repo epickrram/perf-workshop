@@ -26,6 +26,7 @@ import org.HdrHistogram.HistogramLogReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +51,22 @@ public final class AccumulatorReporter
     {
         reportHistogram("Accumulator Inter-Message Latency (ns)", Accumulator.INTER_MESSAGE_HISTOGRAM_QUALIFIER);
         reportHistogram("Accumulator Message Transit Latency (ns)", Accumulator.TRANSIT_TIME_HISTOGRAM_QUALIFIER);
+    }
+
+    public void cleanUp() throws IOException
+    {
+        stream(new File(commandLineArgs.getOutputDir()).listFiles()).
+                filter((file) -> file.getName().endsWith(".enc")).forEach((file) -> {
+
+            try
+            {
+                Files.delete(file.toPath());
+            }
+            catch (IOException e)
+            {
+                // ignore
+            }
+        });
     }
 
     private void reportHistogram(final String histogramTitle, final String histogramQualifier) throws IOException
@@ -101,6 +118,8 @@ public final class AccumulatorReporter
         final CommandLineArgs commandLineArgs = new CommandLineArgs();
         new JCommander(commandLineArgs).parse(args);
 
-        new AccumulatorReporter(commandLineArgs).run();
+        final AccumulatorReporter accumulatorReporter = new AccumulatorReporter(commandLineArgs);
+        accumulatorReporter.run();
+        accumulatorReporter.cleanUp();
     }
 }
