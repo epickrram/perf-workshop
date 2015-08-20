@@ -56,7 +56,6 @@ public final class InputReader
             if(i == commandLineArgs.getNumberOfWarmups())
             {
                 System.out.println("Warm-up complete at " + new Date());
-                System.gc();
                 System.out.println("Pausing for 10 seconds...");
                 THREADS.sleep(10L, TimeUnit.SECONDS);
                 System.out.println("Executing test at " + new Date());
