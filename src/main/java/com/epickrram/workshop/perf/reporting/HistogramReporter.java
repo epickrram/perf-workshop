@@ -101,6 +101,7 @@ public final class HistogramReporter
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("== %s ==%n", histogramTitle));
+        printWriter.append(format("%-6s%20d%n", "mean", (long) histogram.getMean()));
         printWriter.append(format("%-6s%20d%n", "min", histogram.getMinValue()));
         printWriter.append(format("%-6s%20d%n", "50.00%", histogram.getValueAtPercentile(50.0d)));
         printWriter.append(format("%-6s%20d%n", "90.00%", histogram.getValueAtPercentile(90.0d)));
@@ -117,6 +118,7 @@ public final class HistogramReporter
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("%d,", histogram.getMinValue()));
+        printWriter.append(format("%d,", (long) histogram.getMean()));
         printWriter.append(format("%d,", histogram.getValueAtPercentile(50.0d)));
         printWriter.append(format("%d,", histogram.getValueAtPercentile(90.0d)));
         printWriter.append(format("%d,", histogram.getValueAtPercentile(99.0d)));
