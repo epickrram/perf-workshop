@@ -59,7 +59,7 @@ public final class HistogramReporter
                     shortReport(histogram, out);
                     break;
                 case DETAILED:
-                    encodedHistogram(histogram, histogramTitle);
+                    encodedHistogram(histogram, histogramTitle, out);
                     break;
                 default:
                     throw new IllegalStateException("Unknown report format: " + reportFormat);
@@ -67,11 +67,13 @@ public final class HistogramReporter
         }
     }
 
-    private void encodedHistogram(final Histogram histogram, final String histogramTitle)
+    private void encodedHistogram(final Histogram histogram, final String histogramTitle, final PrintStream out)
     {
         try
         {
-            try (final PrintStream printStream = new PrintStream(getHistogramOutputFile(outputDir, histogramTitle)))
+            final File histogramOutputFile = getHistogramOutputFile(outputDir, histogramTitle);
+            out.println("Writing full encoded histogram to " + histogramOutputFile.getAbsolutePath());
+            try (final PrintStream printStream = new PrintStream(histogramOutputFile))
             {
                 new HistogramLogWriter(printStream).outputIntervalHistogram(0, 1, histogram, 1d);
             }
