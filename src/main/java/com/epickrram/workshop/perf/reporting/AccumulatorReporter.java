@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epickrram.workshop.perf.reporting.HistogramReporter.HISTOGRAM_REPORTER;
 import static com.epickrram.workshop.perf.support.Histograms.HISTOGRAMS;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -56,17 +55,19 @@ public final class AccumulatorReporter
     public void cleanUp() throws IOException
     {
         stream(new File(commandLineArgs.getOutputDir()).listFiles()).
-                filter((file) -> file.getName().endsWith(".enc")).forEach((file) -> {
+                filter((file) -> file.getName().endsWith(".enc")).
+                filter((file) -> !file.getName().contains("report")).
+                forEach((file) -> {
 
-            try
-            {
-                Files.delete(file.toPath());
-            }
-            catch (IOException e)
-            {
-                // ignore
-            }
-        });
+                    try
+                    {
+                        Files.delete(file.toPath());
+                    }
+                    catch (IOException e)
+                    {
+                        // ignore
+                    }
+                });
     }
 
     private void reportHistogram(final String histogramTitle, final String histogramQualifier) throws IOException
@@ -80,7 +81,8 @@ public final class AccumulatorReporter
 
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
-        HISTOGRAM_REPORTER.writeReport(superHistogram,  System.out, commandLineArgs.getReportFormat(), histogramTitle);
+        new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir()).
+                writeReport(superHistogram, System.out, commandLineArgs.getReportFormat(), histogramTitle);
     }
 
     private Histogram merge(final List<File> encodedHistogramsGeneratedAfterWarmup)
@@ -118,7 +120,13 @@ public final class AccumulatorReporter
         new JCommander(commandLineArgs).parse(args);
 
         final AccumulatorReporter accumulatorReporter = new AccumulatorReporter(commandLineArgs);
-        accumulatorReporter.run();
-        accumulatorReporter.cleanUp();
+        try
+        {
+            accumulatorReporter.run();
+        }
+        finally
+        {
+            accumulatorReporter.cleanUp();
+        }
     }
 }

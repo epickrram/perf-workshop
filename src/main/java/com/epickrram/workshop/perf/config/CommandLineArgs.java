@@ -27,6 +27,8 @@ import static java.lang.System.getProperty;
 
 public final class CommandLineArgs
 {
+    private final long executionTimestamp = System.currentTimeMillis();
+
     @Parameter(names = "-i", description = "number of iterations")
     private int numberOfIterations = 20;
     @Parameter(names = "-w", description = "number of warm-ups")
@@ -116,5 +118,10 @@ public final class CommandLineArgs
             throw new IllegalArgumentException("Unable to parse report format, must be one of: " +
                     Arrays.toString(ReportFormat.values()));
         }
+    }
+
+    public long getExecutionTimestamp()
+    {
+        return executionTimestamp;
     }
 }

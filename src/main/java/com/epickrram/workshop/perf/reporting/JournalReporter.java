@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import static com.epickrram.workshop.perf.reporting.HistogramReporter.HISTOGRAM_REPORTER;
 import static com.epickrram.workshop.perf.support.Histograms.HISTOGRAMS;
 import static java.nio.channels.FileChannel.open;
 import static java.nio.file.StandardOpenOption.READ;
@@ -76,13 +75,15 @@ public final class JournalReporter
             }
         }
 
-        HISTOGRAM_REPORTER.writeReport(publisherInterMessageLatency, System.out,
+        final HistogramReporter histogramReporter =
+                new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir());
+        histogramReporter.writeReport(publisherInterMessageLatency, System.out,
                 commandLineArgs.getReportFormat(),
                 "Publisher Inter-Message Latency (ns)");
-        HISTOGRAM_REPORTER.writeReport(journallerInterMessageLatency, System.out,
+        histogramReporter.writeReport(journallerInterMessageLatency, System.out,
                 commandLineArgs.getReportFormat(),
                 "Journaller Inter-Message Latency (ns)");
-        HISTOGRAM_REPORTER.writeReport(messageTransitLatency, System.out,
+        histogramReporter.writeReport(messageTransitLatency, System.out,
                 commandLineArgs.getReportFormat(),
                 "Journaller Message Transit Latency (ns)");
     }

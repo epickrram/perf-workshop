@@ -18,16 +18,30 @@ package com.epickrram.workshop.perf.reporting;
 
 
 import org.HdrHistogram.Histogram;
+import org.HdrHistogram.HistogramLogWriter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
-public enum HistogramReporter
+public final class HistogramReporter
 {
-    HISTOGRAM_REPORTER;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+    private final long executionTimestamp;
+    private final String outputDir;
+
+    public HistogramReporter(final long executionTimestamp, final String outputDir)
+    {
+        this.executionTimestamp = executionTimestamp;
+        this.outputDir = outputDir;
+    }
 
     public void writeReport(final Histogram histogram, final PrintStream out, final ReportFormat reportFormat,
                            final String histogramTitle) throws IOException
@@ -41,16 +55,38 @@ public enum HistogramReporter
                 shortReport(histogram, out);
                 break;
             case DETAILED:
-                encodedHistogram(histogram, histogramTitle, out);
+                encodedHistogram(histogram, histogramTitle);
                 break;
             default:
                 throw new IllegalStateException("Unknown report format: " + reportFormat);
         }
     }
 
-    private void encodedHistogram(final Histogram histogram, final String histogramTitle, final PrintStream out)
+    private void encodedHistogram(final Histogram histogram, final String histogramTitle)
     {
+        try
+        {
+            try(final PrintStream printStream = new PrintStream(getHistogramOutputFile(outputDir, histogramTitle)))
+            {
+                new HistogramLogWriter(printStream).outputIntervalHistogram(0, 1, histogram, 1d);
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new RuntimeException("Failed to write histogram", e);
+        }
+    }
 
+    private File getHistogramOutputFile(final String rootDir, final String qualifier)
+    {
+        final LocalDateTime timestamp = LocalDateTime.ofEpochSecond(executionTimestamp / 1000, 0, ZoneOffset.UTC);
+        return new File(rootDir, "encoded-result-histogram-" + cleanse(qualifier) +
+                "-" + FORMATTER.format(timestamp) + ".report.enc");
+    }
+
+    private String cleanse(final String qualifier)
+    {
+        return qualifier.replaceAll("[ =\\(\\)]", "_");
     }
 
     private void longReport(final Histogram histogram, final String histogramTitle,
