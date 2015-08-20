@@ -29,8 +29,32 @@ public enum HistogramReporter
 {
     HISTOGRAM_REPORTER;
 
-    public void writeReport(final Histogram histogram, final String histogramTitle,
-                            final PrintStream out) throws IOException
+    public void writeReport(final Histogram histogram, final PrintStream out, final ReportFormat reportFormat,
+                           final String histogramTitle) throws IOException
+    {
+        switch(reportFormat)
+        {
+            case LONG:
+                longReport(histogram, histogramTitle, out);
+                break;
+            case SHORT:
+                shortReport(histogram, out);
+                break;
+            case DETAILED:
+                encodedHistogram(histogram, histogramTitle, out);
+                break;
+            default:
+                throw new IllegalStateException("Unknown report format: " + reportFormat);
+        }
+    }
+
+    private void encodedHistogram(final Histogram histogram, final String histogramTitle, final PrintStream out)
+    {
+
+    }
+
+    private void longReport(final Histogram histogram, final String histogramTitle,
+                           final PrintStream out) throws IOException
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("== %s ==%n", histogramTitle));
@@ -46,7 +70,7 @@ public enum HistogramReporter
         printWriter.flush();
     }
 
-    public void shortReport(final Histogram histogram, final PrintStream out) throws IOException
+    private void shortReport(final Histogram histogram, final PrintStream out) throws IOException
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("%d,", histogram.getMinValue()));

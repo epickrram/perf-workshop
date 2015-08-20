@@ -18,8 +18,10 @@ package com.epickrram.workshop.perf.config;
 
 
 import com.beust.jcommander.Parameter;
+import com.epickrram.workshop.perf.reporting.ReportFormat;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static java.lang.System.getProperty;
 
@@ -29,7 +31,7 @@ public final class CommandLineArgs
     private int numberOfIterations = 20;
     @Parameter(names = "-w", description = "number of warm-ups")
     private int numberOfWarmups = 10;
-    @Parameter(names = "-r", description = "number of records per input file")
+    @Parameter(names = "-n", description = "number of records per input file")
     private int numberOfRecords = 10000;
     @Parameter(names = "-l", description = "length of record (bytes)")
     private int recordLength = 64;
@@ -43,6 +45,8 @@ public final class CommandLineArgs
     private String outputDir = getTmpDirectory();
     @Parameter(names = "-o", description = "overrides file (default: /tmp/perf-workshop.properties)")
     private String overrideFile = getTmpDirectory() + File.separator + "perf-workshop.properties";
+    @Parameter(names = "-r", description = "report format")
+    private String reportFormat = ReportFormat.LONG.name();
     @Parameter(names = "-h", description = "print help and exit", help = true)
     private boolean help;
 
@@ -99,5 +103,18 @@ public final class CommandLineArgs
     public boolean isHelp()
     {
         return help;
+    }
+
+    public ReportFormat getReportFormat()
+    {
+        try
+        {
+            return ReportFormat.valueOf(reportFormat);
+        }
+        catch(final RuntimeException e)
+        {
+            throw new IllegalArgumentException("Unable to parse report format, must be one of: " +
+                    Arrays.toString(ReportFormat.values()));
+        }
     }
 }
