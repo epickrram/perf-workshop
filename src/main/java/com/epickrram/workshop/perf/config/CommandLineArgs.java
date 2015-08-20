@@ -22,8 +22,12 @@ import com.epickrram.workshop.perf.reporting.ReportFormat;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 import static java.lang.System.getProperty;
+import static java.util.Arrays.asList;
 
 public final class CommandLineArgs
 {
@@ -47,8 +51,8 @@ public final class CommandLineArgs
     private String outputDir = getTmpDirectory();
     @Parameter(names = "-o", description = "overrides file (default: /tmp/perf-workshop.properties)")
     private String overrideFile = getTmpDirectory() + File.separator + "perf-workshop.properties";
-    @Parameter(names = "-r", description = "report format")
-    private String reportFormat = ReportFormat.LONG.name();
+    @Parameter(names = "-r", description = "report format", variableArity = true)
+    private List<String> reportFormats = asList(ReportFormat.LONG.name());
     @Parameter(names = "-h", description = "print help and exit", help = true)
     private boolean help;
 
@@ -107,7 +111,17 @@ public final class CommandLineArgs
         return help;
     }
 
-    public ReportFormat getReportFormat()
+    public Set<ReportFormat> getReportFormats()
+    {
+        final EnumSet<ReportFormat> formats = EnumSet.noneOf(ReportFormat.class);
+        for (final String reportFormat : reportFormats)
+        {
+            formats.add(parseReportFormat(reportFormat));
+        }
+        return formats;
+    }
+
+    private ReportFormat parseReportFormat(final String reportFormat)
     {
         try
         {

@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -43,22 +44,26 @@ public final class HistogramReporter
         this.outputDir = outputDir;
     }
 
-    public void writeReport(final Histogram histogram, final PrintStream out, final ReportFormat reportFormat,
-                           final String histogramTitle) throws IOException
+    public void writeReport(final Histogram histogram, final PrintStream out,
+                            final Set<ReportFormat> reportFormats,
+                            final String histogramTitle) throws IOException
     {
-        switch(reportFormat)
+        for (final ReportFormat reportFormat : reportFormats)
         {
-            case LONG:
-                longReport(histogram, histogramTitle, out);
-                break;
-            case SHORT:
-                shortReport(histogram, out);
-                break;
-            case DETAILED:
-                encodedHistogram(histogram, histogramTitle);
-                break;
-            default:
-                throw new IllegalStateException("Unknown report format: " + reportFormat);
+            switch (reportFormat)
+            {
+                case LONG:
+                    longReport(histogram, histogramTitle, out);
+                    break;
+                case SHORT:
+                    shortReport(histogram, out);
+                    break;
+                case DETAILED:
+                    encodedHistogram(histogram, histogramTitle);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown report format: " + reportFormat);
+            }
         }
     }
 
@@ -66,7 +71,7 @@ public final class HistogramReporter
     {
         try
         {
-            try(final PrintStream printStream = new PrintStream(getHistogramOutputFile(outputDir, histogramTitle)))
+            try (final PrintStream printStream = new PrintStream(getHistogramOutputFile(outputDir, histogramTitle)))
             {
                 new HistogramLogWriter(printStream).outputIntervalHistogram(0, 1, histogram, 1d);
             }
@@ -90,7 +95,7 @@ public final class HistogramReporter
     }
 
     private void longReport(final Histogram histogram, final String histogramTitle,
-                           final PrintStream out) throws IOException
+                            final PrintStream out) throws IOException
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("== %s ==%n", histogramTitle));
