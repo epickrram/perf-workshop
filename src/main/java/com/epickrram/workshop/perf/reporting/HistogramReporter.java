@@ -101,15 +101,17 @@ public final class HistogramReporter
     {
         final PrintWriter printWriter = new PrintWriter(out);
         printWriter.append(format("== %s ==%n", histogramTitle));
-        printWriter.append(format("%-6s%20d%n", "mean", (long) histogram.getMean()));
-        printWriter.append(format("%-6s%20d%n", "min", histogram.getMinValue()));
-        printWriter.append(format("%-6s%20d%n", "50.00%", histogram.getValueAtPercentile(50.0d)));
-        printWriter.append(format("%-6s%20d%n", "90.00%", histogram.getValueAtPercentile(90.0d)));
-        printWriter.append(format("%-6s%20d%n", "99.00%", histogram.getValueAtPercentile(99.0d)));
-        printWriter.append(format("%-6s%20d%n", "99.90%", histogram.getValueAtPercentile(99.9d)));
-        printWriter.append(format("%-6s%20d%n", "99.99%", histogram.getValueAtPercentile(99.99d)));
-        printWriter.append(format("%-6s%20d%n", "max", histogram.getMaxValue()));
-        printWriter.append(format("%-6s%20d%n", "count", histogram.getTotalCount()));
+        printWriter.append(format("%-8s%20d%n", "mean", (long) histogram.getMean()));
+        printWriter.append(format("%-8s%20d%n", "min", histogram.getMinValue()));
+        printWriter.append(format("%-8s%20d%n", "50.00%", histogram.getValueAtPercentile(50.0d)));
+        printWriter.append(format("%-8s%20d%n", "90.00%", histogram.getValueAtPercentile(90.0d)));
+        printWriter.append(format("%-8s%20d%n", "99.00%", histogram.getValueAtPercentile(99.0d)));
+        printWriter.append(format("%-8s%20d%n", "99.90%", histogram.getValueAtPercentile(99.9d)));
+        printWriter.append(format("%-8s%20d%n", "99.99%", histogram.getValueAtPercentile(99.99d)));
+        printWriter.append(format("%-8s%20d%n", "99.999%", histogram.getValueAtPercentile(99.999d)));
+        printWriter.append(format("%-8s%20d%n", "99.9999%", histogram.getValueAtPercentile(99.9999d)));
+        printWriter.append(format("%-8s%20d%n", "max", histogram.getMaxValue()));
+        printWriter.append(format("%-8s%20d%n", "count", histogram.getTotalCount()));
         printWriter.append("\n");
         printWriter.flush();
     }
