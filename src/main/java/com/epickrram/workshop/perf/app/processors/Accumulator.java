@@ -19,7 +19,6 @@ package com.epickrram.workshop.perf.app.processors;
 
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.epickrram.workshop.perf.config.CommandLineArgs;
-import com.epickrram.workshop.perf.reporting.HistogramReporter;
 import com.epickrram.workshop.perf.support.NanoTimer;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.HistogramLogWriter;
