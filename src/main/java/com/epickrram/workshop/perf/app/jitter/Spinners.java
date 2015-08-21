@@ -35,7 +35,7 @@ public enum Spinners
 
     private class Spinner implements Runnable
     {
-        public long counter = 0;
+        private long counter = 0;
 
         @Override
         public void run()
@@ -50,6 +50,11 @@ public enum Spinners
 
                 Threads.THREADS.sleep(SLEEP_PERIOD_NANOS, TimeUnit.NANOSECONDS);
             }
+        }
+
+        public long getCounter()
+        {
+            return counter;
         }
     }
 }
