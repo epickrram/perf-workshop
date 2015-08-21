@@ -3,7 +3,7 @@ __author__ = 'pricem'
 import re
 import sys
 
-TIMESTAMP_REGEX=".* ([0-9]{1,6}\.[0-9]{6}):.*"
+TIMESTAMP_REGEX=".* ([0-9]{1,10}\.[0-9]{6}):.*"
 RUNTIME_REGEX=".* runtime=([0-9]+) "
 
 def parse_timestamp(input):
