@@ -68,19 +68,22 @@ public final class Accumulator
 
         if(packet.isLastInStream())
         {
-            outputHistogram(mergeHistograms(messageTransitTimeHistograms), 0, TRANSIT_TIME_HISTOGRAM_QUALIFIER);
-            outputHistogram(mergeHistograms(interMessageTimeHistograms), 0, INTER_MESSAGE_HISTOGRAM_QUALIFIER);
+            outputHistogram(mergeHistogramsAfterWarmupPeriod(messageTransitTimeHistograms), 0, TRANSIT_TIME_HISTOGRAM_QUALIFIER);
+            outputHistogram(mergeHistogramsAfterWarmupPeriod(interMessageTimeHistograms), 0, INTER_MESSAGE_HISTOGRAM_QUALIFIER);
         }
 
         previousMessageNanoTime = nanoTime;
     }
 
-    private static Histogram mergeHistograms(final Histogram[] histograms)
+    private Histogram mergeHistogramsAfterWarmupPeriod(final Histogram[] histograms)
     {
         final Histogram target = HISTOGRAMS.createHistogram();
-        for (final Histogram histogram : histograms)
+        for (int i = 0; i < histograms.length; i++)
         {
-            target.add(histogram);
+            if(i > commandLineArgs.getNumberOfWarmups())
+            {
+                target.add(histograms[i]);
+            }
         }
 
         return target;

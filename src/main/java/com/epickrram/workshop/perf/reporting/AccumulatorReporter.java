@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epickrram.workshop.perf.support.Histograms.HISTOGRAMS;
@@ -77,7 +76,7 @@ public final class AccumulatorReporter
                 filter((file) -> {
                     return file.getName().contains(histogramQualifier);
                 }).
-                filter(this::isAfterWarmup).collect(toList());
+                collect(toList());
 
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
@@ -106,12 +105,6 @@ public final class AccumulatorReporter
         {
             throw new RuntimeException("Could not process encoded histogram", e);
         }
-    }
-
-    private boolean isAfterWarmup(final File file)
-    {
-        final Matcher matcher = NUMBER_PATTERN.matcher(file.getName());
-        return matcher.find() && Integer.parseInt(matcher.group(1)) > commandLineArgs.getNumberOfWarmups();
     }
 
     public static void main(final String[] args) throws Exception
