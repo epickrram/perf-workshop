@@ -18,6 +18,7 @@ package com.epickrram.workshop.perf.app;
 
 
 import com.beust.jcommander.JCommander;
+import com.epickrram.workshop.perf.app.jitter.Spinners;
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.epickrram.workshop.perf.app.processors.Accumulator;
 import com.epickrram.workshop.perf.app.processors.InputReader;
@@ -73,6 +74,12 @@ public final class AppMain
 
         final InputReader inputReader = new InputReader(packetDisruptor.getRingBuffer(), SYSTEM_NANO_TIMER, commandLineArgs);
 
+        if(commandLineArgs.runSpinners())
+        {
+            System.out.println("Starting spinner threads to perturb the system");
+            Spinners.SPINNERS.start();
+        }
+
         System.out.println("Starting replay at " + new Date());
 
         final Thread thread = DAEMON_THREAD_FACTORY.newThread(THREADS.runOnCpu(inputReader::processFiles,
@@ -91,6 +98,7 @@ public final class AppMain
         }
         finally
         {
+            Spinners.SPINNERS.stop();
             packetDisruptor.halt();
         }
 

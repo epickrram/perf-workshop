@@ -53,6 +53,8 @@ public final class CommandLineArgs
     private String overrideFile = getTmpDirectory() + File.separator + "perf-workshop.properties";
     @Parameter(names = "-r", description = "report format", variableArity = true)
     private List<String> reportFormats = asList(ReportFormat.LONG.name());
+    @Parameter(names = "-s", description = "run busy spinning threads to perturb system")
+    private boolean runSpinners = false;
     @Parameter(names = "-h", description = "print help and exit", help = true)
     private boolean help;
 
@@ -94,6 +96,11 @@ public final class CommandLineArgs
     public String getOutputDir()
     {
         return outputDir;
+    }
+
+    public boolean runSpinners()
+    {
+        return runSpinners;
     }
 
     private static String getTmpDirectory()
