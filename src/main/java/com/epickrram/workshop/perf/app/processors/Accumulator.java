@@ -19,6 +19,7 @@ package com.epickrram.workshop.perf.app.processors;
 
 import com.epickrram.workshop.perf.app.message.Packet;
 import com.epickrram.workshop.perf.config.CommandLineArgs;
+import com.epickrram.workshop.perf.reporting.HistogramReporter;
 import com.epickrram.workshop.perf.support.NanoTimer;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.HistogramLogWriter;
@@ -68,18 +69,22 @@ public final class Accumulator
 
         if(packet.isLastInStream())
         {
-            for(int i = 0; i < messageTransitTimeHistograms.length; i++)
-            {
-                outputHistogram(messageTransitTimeHistograms[i], i, TRANSIT_TIME_HISTOGRAM_QUALIFIER);
-            }
-
-            for(int i = 0; i < interMessageTimeHistograms.length; i++)
-            {
-                outputHistogram(interMessageTimeHistograms[i], i, INTER_MESSAGE_HISTOGRAM_QUALIFIER);
-            }
+            outputHistogram(mergeHistograms(messageTransitTimeHistograms), 0, TRANSIT_TIME_HISTOGRAM_QUALIFIER);
+            outputHistogram(mergeHistograms(interMessageTimeHistograms), 0, INTER_MESSAGE_HISTOGRAM_QUALIFIER);
         }
 
         previousMessageNanoTime = nanoTime;
+    }
+
+    private static Histogram mergeHistograms(final Histogram[] histograms)
+    {
+        final Histogram target = HISTOGRAMS.createHistogram();
+        for (final Histogram histogram : histograms)
+        {
+            target.add(histogram);
+        }
+
+        return target;
     }
 
     private void outputHistogram(final Histogram histogram, final int streamNumber, final String qualifier)
