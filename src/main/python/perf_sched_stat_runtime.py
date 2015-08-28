@@ -3,7 +3,7 @@ __author__ = 'pricem'
 import re
 import sys
 
-TIMESTAMP_REGEX=".* ([0-9]{1,10}\.[0-9]{6}):.*"
+TIMESTAMP_REGEX=".* ([0-9]{1,12}\.[0-9]{6}):.*"
 RUNTIME_REGEX=".* runtime=([0-9]+) "
 
 def parse_timestamp(input):
@@ -27,7 +27,7 @@ for line in open(sys.argv[2]).readlines():
 
         if last_timestamp != 0:
             runtime_reporting_delta_nanos = timestamp_nanos - last_timestamp
-            nanos_not_on_cpu = runtime_reporting_delta_nanos - runtime_nanos
+            nanos_not_on_cpu = abs(runtime_reporting_delta_nanos - runtime_nanos)
             print str(timestamp_nanos) + " " + str(nanos_not_on_cpu)
 
         last_timestamp = timestamp_nanos
