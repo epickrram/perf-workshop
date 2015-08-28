@@ -25,3 +25,12 @@ Output
     max                  11263
     count                89991
 
+Tools to install
+================
+
+Install the following tools in order to work through the exercises:
+
+1. gnuplot
+2. perf
+3. hwloc
+4. trace-cmd
