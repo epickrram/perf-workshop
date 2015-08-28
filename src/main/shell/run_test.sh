@@ -16,4 +16,4 @@ EXEC_PREFIX=""
 
 echo "JVM_OPTS: $JVM_OPTS"
 
-$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 2000 -w 100 -n 4000 -r DETAILED -r LONG | tee output.log
+$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 1000 -w 100 -n 4000 -r DETAILED -r LONG | tee output.log
