@@ -55,6 +55,8 @@ public final class CommandLineArgs
     private List<String> reportFormats = asList(ReportFormat.LONG.name());
     @Parameter(names = "-s", description = "run busy spinning threads to perturb system")
     private boolean runSpinners = false;
+    @Parameter(names = "-t", description = "test label")
+    private String testLabel = Long.toString(executionTimestamp);
     @Parameter(names = "-h", description = "print help and exit", help = true)
     private boolean help;
 
@@ -111,6 +113,11 @@ public final class CommandLineArgs
     public String getOverrideFile()
     {
         return overrideFile;
+    }
+
+    public String getTestLabel()
+    {
+        return testLabel;
     }
 
     public boolean isHelp()

@@ -13,7 +13,7 @@ public final class EncodedHistogramReporter
     public static void main(final String[] args) throws IOException
     {
         final Histogram histogram = (Histogram) new HistogramLogReader(args[0]).nextIntervalHistogram();
-        final HistogramReporter reporter = new HistogramReporter(0L, null);
+        final HistogramReporter reporter = new HistogramReporter(0L, null, "");
         reporter.writeReport(histogram, System.out, EnumSet.of(ReportFormat.LONG), args[0]);
     }
 }

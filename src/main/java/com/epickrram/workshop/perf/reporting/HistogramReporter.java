@@ -37,11 +37,13 @@ public final class HistogramReporter
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private final long executionTimestamp;
     private final String outputDir;
+    private final String testLabel;
 
-    public HistogramReporter(final long executionTimestamp, final String outputDir)
+    public HistogramReporter(final long executionTimestamp, final String outputDir, final String testLabel)
     {
         this.executionTimestamp = executionTimestamp;
         this.outputDir = outputDir;
+        this.testLabel = testLabel;
     }
 
     public void writeReport(final Histogram histogram, final PrintStream out,
@@ -59,7 +61,7 @@ public final class HistogramReporter
                     shortReport(histogram, out);
                     break;
                 case DETAILED:
-                    encodedHistogram(histogram, histogramTitle, out);
+                    encodedHistogram(histogram, histogramTitle, out, testLabel);
                     break;
                 default:
                     throw new IllegalStateException("Unknown report format: " + reportFormat);
@@ -67,11 +69,11 @@ public final class HistogramReporter
         }
     }
 
-    private void encodedHistogram(final Histogram histogram, final String histogramTitle, final PrintStream out)
+    private void encodedHistogram(final Histogram histogram, final String histogramTitle, final PrintStream out, final String testLabel)
     {
         try
         {
-            final File histogramOutputFile = getHistogramOutputFile(outputDir, histogramTitle);
+            final File histogramOutputFile = getHistogramOutputFile(outputDir, histogramTitle, testLabel);
             out.println("Writing full encoded histogram to " + histogramOutputFile.getAbsolutePath());
             try (final PrintStream printStream = new PrintStream(histogramOutputFile))
             {
@@ -84,11 +86,11 @@ public final class HistogramReporter
         }
     }
 
-    private File getHistogramOutputFile(final String rootDir, final String qualifier)
+    private File getHistogramOutputFile(final String rootDir, final String qualifier, final String testLabel)
     {
         final LocalDateTime timestamp = LocalDateTime.ofEpochSecond(executionTimestamp / 1000, 0, ZoneOffset.UTC);
         return new File(rootDir, "encoded-result-histogram-" + cleanse(qualifier) +
-                "-" + FORMATTER.format(timestamp) + ".report.enc");
+                "-" + FORMATTER.format(timestamp) + "-LABEL_" + testLabel + ".report.enc");
     }
 
     private String cleanse(final String qualifier)

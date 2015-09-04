@@ -76,7 +76,7 @@ public final class JournalReporter
         }
 
         final HistogramReporter histogramReporter =
-                new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir());
+                new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir(), commandLineArgs.getTestLabel());
         histogramReporter.writeReport(publisherInterMessageLatency, System.out,
                 commandLineArgs.getReportFormats(),
                 "Publisher Inter-Message Latency (ns)");

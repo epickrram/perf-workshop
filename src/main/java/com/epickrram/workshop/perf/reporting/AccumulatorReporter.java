@@ -80,8 +80,8 @@ public final class AccumulatorReporter
 
         final Histogram superHistogram = merge(encodedHistogramsGeneratedAfterWarmup);
 
-        new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir()).
-                writeReport(superHistogram, System.out, commandLineArgs.getReportFormats(), histogramTitle);
+        new HistogramReporter(commandLineArgs.getExecutionTimestamp(), commandLineArgs.getOutputDir(),
+                commandLineArgs.getTestLabel()).writeReport(superHistogram, System.out, commandLineArgs.getReportFormats(), histogramTitle);
     }
 
     private Histogram merge(final List<File> encodedHistogramsGeneratedAfterWarmup)
