@@ -17,6 +17,8 @@ The application consists of 3 threads:
 
 Messages are timestamped using System.nanoTime() before being placed in the queue. Another timestamp is taken upon message receipt by each of the consumers.
 
+The producer thread will busy-spin for ten microseconds between each publication.
+
 Four latencies are recorded:
 
 1. Queue transit time for accumulator thread
@@ -37,6 +39,9 @@ Output
 
 The run_test.sh script will run the application. At exit, the application will print out a number of latency histograms.
 
+Below is an excerpt of the output containing the histogram of latencies recorded between the producer thread and the accumulator thread.
+
+
     == Accumulator Message Transit Latency (ns) ==
     min                    136
     50.00%                 175
@@ -46,6 +51,7 @@ The run_test.sh script will run the application. At exit, the application will p
     99.99%                 543
     max                  11263
     count                89991
+
 
 Tools to install
 ================
