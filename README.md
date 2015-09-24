@@ -230,7 +230,7 @@ The application allows the user to select a target CPU for any of the three proc
 Re-running the test shows a large improvement:
 
 
-![Pinned threads chart](doc/pinned-threads-chart.png)
+![Pinned threads chart](doc/pinned-thread-chart.png)
 
 
 This result implies that forcing the threads to run on a single CPU can help reduce inter-thread latency. Whether this is down to the scheduler making better decisions about where to run other processes, or simple because there is less context switching is not clear.
