@@ -92,3 +92,47 @@ and viewed with the following command:
 producing something that looks like this chart:
 
 ![Baseline chart](doc/baseline-chart.png)
+
+
+Why so slow?
+============
+
+From these first results, we can see that at the 99th percentile, inter-thread latency was over 2 milliseconds, 
+meaning that 1 in 100 messages took 2ms or longer to transit between two threads.
+
+Since no other work is being done by this program, the workload is constant, and there are no runtime pauses, 
+where is this jitter coming from?
+
+Below are a series of steps working through some causes of system jitter on a modern Linux kernel 
+(my laptop is running Fedora 22 on kernel 4.0.4).  Most of these techniques have been tested on a 3.18 kernel, 
+older versions may not have the same features/capabilities.
+
+
+CPU speed
+=========
+
+Modern CPUs (especially on laptops) are designed to be power efficient, this means that the OS will typically try 
+to scale down the clock rate when there is no activity. On Intel CPUs, this is partially handled using power-states,
+which allow the OS to throttle CPU speed, meaning less power draw, and less thermal overhead.
+
+On current kernels, this is handled by the CPU scaling governor. You can check your current setting by looking in the file
+
+`/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+
+on my laptop, this is set to `powersave` mode. 
+
+
+
+    == Accumulator Message Transit Latency (ns) ==
+    mean                   23882
+    min                       84
+    50.00%                   152
+    90.00%                   208
+    99.00%                589827
+    99.90%               4456479
+    99.99%               7340063
+    99.999%              7864351
+    99.9999%             8126495
+    max                  8126495
+    count                3595101
+
