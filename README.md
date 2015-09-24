@@ -295,6 +295,6 @@ Using `perf` once again to confirm that other processes are not running on the r
         1 kworker/3:1H
        11 swapper
 
-These processes starting with 'k' are kernel threads that deal with house-keeping tasks on behalf of the OS.
+These processes starting with 'k' are kernel threads that deal with house-keeping tasks on behalf of the OS, 'swapper' is the Linux idle process, which is scheduled whenever there is no work to be executed on a CPU.
 
 
