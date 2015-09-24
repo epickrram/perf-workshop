@@ -283,7 +283,7 @@ The difference is so great, that it's necessary to use a log-scale for the y-axi
 ![Isolated CPUs](doc/isolcpus-chart-log-scale.png)
 
 
-Note that the difference will not be so great on a server-class machine with lots of spare processing power. The effect here is magnified by the fact that the OS only has 4 CPUs (on my laptop) to work with, and a desktop distribution of Linux.
+Note that the difference will not be so great on a server-class machine with lots of spare processing power. The effect here is magnified by the fact that the OS only has 4 CPUs (on my laptop) to work with, and a desktop distribution of Linux. So there is much more scheduling pressure than would be present on a server-class machine.
 
 Using `perf` once again to confirm that other processes are not running on the reserved CPUs shows that there is still some contention to deal with:
 
