@@ -181,3 +181,78 @@ The effect is clearly visible when added to the chart. To add the new data, go t
 `gnuplot ./accumulator_message_transit_latency.cmd`
 
 ![Performance governor chart](doc/performance-chart.png)
+
+
+Process migration
+=================
+
+Another possible cause of scheduling jitter is likely to be down to the OS scheduler moving processes around as different tasks 
+become runnable. The important threads in the application are at the mercy of the scheduler, which can, at any time
+decide to run another process on the current CPU. When this happens, the running thread's context will be saved, and it will
+be shifted back into the schedulers run-queue (or possibly migrated to another CPU entirely).
+
+To find out whether this is happening to the threads in our application, we can turn to `perf` again and sample trace events
+emitted by the scheduler. First, record the PIDs of the two important threads from the application (producer and accumulator):
+
+    Starting replay at Thu Sep 24 14:17:31 BST 2015
+    Accumulator thread has pid: 11372
+    Journaller thread has pid: 11371
+    Producer thread has pid: 11370
+    Warm-up complete at Thu Sep 24 14:17:35 BST 2015
+    Pausing for 10 seconds...
+
+Once warm-up has completed, record the scheduler events for the specific PIDs of interest:
+
+`perf record -e "sched:sched_stat_runtime" -t 11370 -t 11372`
+
+This command will record events emitted by the scheduler to update a task's runtime statistics. The recording session will exit once those processes complete. Running `perf script` again will show the captured events:
+
+`java 11372 [001]  3055.140623: sched:sched_stat_runtime: comm=java pid=11372 runtime=1000825 [ns] vruntime=81510486145 [ns]`
+
+The line above shows, among other things, what CPU the process was executing on when stats were updated. In this case, the process was running on CPU 001. A bit of sorting and counting will show exactly how the process was moved around the available CPUs during its lifetime:
+
+`perf script | grep "java 11372" | awk '{print $3}' | sort | uniq -c`
+
+    16071 [000]
+    10858 [001]
+     5778 [002]
+     7230 [003]
+
+
+So this thread mostly ran on CPUs 0 and 1, but also spent some time on CPUs 2 and 3. Moving the process around is going to require a context switch, and cache invalidation effects. While these are unlikely to be the sources of maximum latency, in order to start improving the worst-case, it will be necessary to stop migration of these processes.
+
+The application allows the user to select a target CPU for any of the three processing threads via a config file `/tmp/perf-workshop.properties`. Edit the file, and select two different CPUs for the producer and accumulator threads:
+
+    perf.workshop.affinity.producer=1
+    perf.workshop.affinity.accumulator=3
+
+
+Re-running the test shows a large improvement:
+
+
+![Pinned threads chart](doc/pinned-threads-chart.png)
+
+
+This result implies that forcing the threads to run on a single CPU can help reduce inter-thread latency. Whether this is down to the scheduler making better decisions about where to run other processes, or simple because there is less context switching is not clear.
+
+One thing to look out for is the fact that we have not stopped the scheduler from running other tasks on those CPUs. We are still seeing multi-millisecond delays in message passing, and this could be down to other processes being run on the CPU that the application thread has been restricted to.
+
+Returning to `perf` and this time capturing all `sched_stat_runtime` events for a specific CPU (in this case 1) will show what other processes are being scheduled while the application is running:
+
+`perf record -e "sched:sched_stat_runtime" -C 1`
+
+Stripping out everything but the process name, and counting occurrences in the event trace shows that while the java application was running most of the time, there are plenty of other processes that were scheduled during the application's execution time:
+
+    45514 java
+       60 kworker/1:2
+       26 irq/39-DLL0665:
+       24 rngd
+       15 rcu_sched
+        9 gmain
+        8 goa-daemon
+        7 chrome
+        6 ksoftirqd/1
+        5 rtkit-daemon
+
+
+
