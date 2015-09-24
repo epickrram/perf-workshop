@@ -233,7 +233,7 @@ Re-running the test shows a large improvement:
 ![Pinned threads chart](doc/pinned-thread-chart.png)
 
 
-This result implies that forcing the threads to run on a single CPU can help reduce inter-thread latency. Whether this is down to the scheduler making better decisions about where to run other processes, or simple because there is less context switching is not clear.
+This result implies that forcing the threads to run on a single CPU can help reduce inter-thread latency. Whether this is down to the scheduler making better decisions about where to run other processes, or simply because there is less context switching is not clear.
 
 One thing to look out for is the fact that we have not stopped the scheduler from running other tasks on those CPUs. We are still seeing multi-millisecond delays in message passing, and this could be down to other processes being run on the CPU that the application thread has been restricted to.
 
@@ -260,7 +260,7 @@ CPU Isolation
 
 At this point, it's time to remove the target CPUs from the OS's scheduling domain. This can be done with the `isolcpus` boot parameter (i.e. add `isolcpus=1,3` to `grub.conf`), or by using the `cset` command from the `cpuset` package.
 
-In this case, I'm using isolcpus to stop the scheduler from running other userland processes on CPUs 1 & 3. The difference in inter-thread latency is dramatic:
+In this case, I'm using `isolcpus` to stop the scheduler from running other userland processes on CPUs 1 & 3. The difference in inter-thread latency is dramatic:
 
 
     == Accumulator Message Transit Latency (ns) ==
