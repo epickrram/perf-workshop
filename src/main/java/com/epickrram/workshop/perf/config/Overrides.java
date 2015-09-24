@@ -36,6 +36,7 @@ public final class Overrides
     private static final String PRODUCER = "producer";
     private static final String JOURNALLER = "journaller";
     private static final String ACCUMULATOR = "accumulator";
+    private static final boolean DEFAULT_JOURNALLER_ENABLED_VALUE = false;
 
     private final String overrideFile;
     private final Properties properties = new Properties();
@@ -54,7 +55,7 @@ public final class Overrides
             properties.setProperty(threadAffinityKeyFor(PRODUCER), "");
             properties.setProperty(threadAffinityKeyFor(JOURNALLER), "");
             properties.setProperty(threadAffinityKeyFor(ACCUMULATOR), "");
-            properties.setProperty(JOURNALLER_ENABLED_KEY, Boolean.toString(true));
+            properties.setProperty(JOURNALLER_ENABLED_KEY, Boolean.toString(DEFAULT_JOURNALLER_ENABLED_VALUE));
 
             try(final FileWriter writer = new FileWriter(file, false))
             {
