@@ -46,6 +46,7 @@ Install the following tools in order to work through the exercises:
 2. perf
 3. hwloc
 4. trace-cmd
+5. powertop
 
 
 Using
@@ -113,15 +114,50 @@ CPU speed
 
 Modern CPUs (especially on laptops) are designed to be power efficient, this means that the OS will typically try 
 to scale down the clock rate when there is no activity. On Intel CPUs, this is partially handled using power-states,
-which allow the OS to throttle CPU speed, meaning less power draw, and less thermal overhead.
+which allow the OS to reduce CPU frequency, meaning less power draw, and less thermal overhead.
 
 On current kernels, this is handled by the CPU scaling governor. You can check your current setting by looking in the file
 
 `/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
 
-on my laptop, this is set to `powersave` mode. 
+on my laptop, this is set to `powersave` mode. To see available governors:
+
+`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`
+
+which tells me that I have two choices:
+
+1. performance
+2. powersave
+
+Before making a change though, let's make sure that powersave is actually causing us issues.
+
+To do this, we can use [perf_events] (https://perf.wiki.kernel.org/index.php/Main_Page) 
+to monitor the CPU's P-state while the application is running:
+ 
+`perf record -e "power:cpu_frequency" -a`
+ 
+This command will sample the cpu_frequency trace point written to by the intel cpufreq driver on all CPUs. This information comes
+from an MSR on the chip which holds the FSB speed.
+
+Hit Ctrl+c once the application has finished running, then use `perf script` to view the available output.
+
+Filtering entries to include only those samples taken when `java` was executing shows some variation in the reported frequency:
+
+    java  2804 [003]  3327.796741: power:cpu_frequency: state=1500000 cpu_id=3
+    java  2804 [003]  3328.089969: power:cpu_frequency: state=3000000 cpu_id=3
+    java  2804 [003]  3328.139009: power:cpu_frequency: state=2500000 cpu_id=3
+    java  2804 [003]  3328.204063: power:cpu_frequency: state=1000000 cpu_id=3
 
 
+Set the scaling governor to performance mode to reduce this:
+
+`sudo bash ./set_cpu_governor.sh performance`
+
+and re-run the test while using `perf` to record `cpu_frequency` events. If the change has taken effect, 
+there should be no events output by `perf script`.
+
+
+Running the test again with the performance governor enabled produces better results for inter-thread latency:
 
     == Accumulator Message Transit Latency (ns) ==
     mean                   23882
@@ -136,3 +172,12 @@ on my laptop, this is set to `powersave` mode.
     max                  8126495
     count                3595101
 
+
+Though there is still a max latency of 8ms, it has been reduced from the previous value of 11ms.
+
+The effect is clearly visible when added to the chart. To add the new data, go through the steps followed earlier:
+
+`bash ./chart_accumulator_message_transit_latency.sh`
+`gnuplot ./accumulator_message_transit_latency.cmd`
+
+![Performance governor chart](doc/performance-chart.png)
