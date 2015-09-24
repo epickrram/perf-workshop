@@ -255,4 +255,46 @@ Stripping out everything but the process name, and counting occurrences in the e
         5 rtkit-daemon
 
 
+CPU Isolation
+=============
+
+At this point, it's time to remove the target CPUs from the OS's scheduling domain. This can be done with the `isolcpus` boot parameter (i.e. add `isolcpus=1,3` to `grub.conf`), or by using the `cset` command from the `cpuset` package.
+
+In this case, I'm using isolcpus to stop the scheduler from running other userland processes on CPUs 1 & 3. The difference in inter-thread latency is dramatic:
+
+
+    == Accumulator Message Transit Latency (ns) ==
+    mean                     144
+    min                       84
+    50.00%                   144
+    90.00%                   160
+    99.00%                   208
+    99.90%                   512
+    99.99%                  2432
+    99.999%                 3584
+    99.9999%               11776
+    max                    14848
+    count                3595101
+
+
+The difference is so great, that it's necessary to use a log-scale for the y-axis of the chart.
+
+
+![Isolated CPUs](doc/isolcpus-chart-log-scale.png)
+
+
+Note that the difference will not be so great on a server-class machine with lots of spare processing power. The effect here is magnified by the fact that the OS only has 4 CPUs (on my laptop) to work with, and a desktop distribution of Linux.
+
+Using `perf` once again to confirm that other processes are not running on the reserved CPUs shows that there is still some contention to deal with:
+
+    81130 java
+        2 ksoftirqd/1
+       43 kworker/1:0
+        1 kworker/1:1H
+        2 kworker/3:1
+        1 kworker/3:1H
+       11 swapper
+
+These processes starting with 'k' are kernel threads that deal with house-keeping tasks on behalf of the OS.
+
 
