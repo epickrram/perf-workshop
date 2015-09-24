@@ -74,7 +74,7 @@ public final class HistogramReporter
         try
         {
             final File histogramOutputFile = getHistogramOutputFile(outputDir, histogramTitle, testLabel);
-            out.println("Writing full encoded histogram to " + histogramOutputFile.getAbsolutePath());
+            out.println("Writing full encoded histogram to " + histogramOutputFile.getAbsolutePath() + "\n");
             try (final PrintStream printStream = new PrintStream(histogramOutputFile))
             {
                 new HistogramLogWriter(printStream).outputIntervalHistogram(0, 1, histogram, 1d);
