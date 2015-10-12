@@ -25,7 +25,7 @@ import com.epickrram.workshop.perf.app.processors.InputReader;
 import com.epickrram.workshop.perf.app.processors.Journaller;
 import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.config.Overrides;
-import com.lmax.disruptor.BusySpinWaitStrategy;
+import com.epickrram.workshop.perf.support.SpinLoopHintBusySpinWaitStrategy;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -52,7 +52,7 @@ public final class AppMain
 
         final Disruptor<Packet> packetDisruptor =
                 new Disruptor<>(new Packet.Factory(commandLineArgs.getRecordLength()), commandLineArgs.getBufferSize(),
-                        newCachedThreadPool(DAEMON_THREAD_FACTORY), ProducerType.SINGLE, new BusySpinWaitStrategy());
+                        newCachedThreadPool(DAEMON_THREAD_FACTORY), ProducerType.SINGLE, new SpinLoopHintBusySpinWaitStrategy());
 
         final Overrides overrides = new Overrides(commandLineArgs);
         overrides.init();
