@@ -21,6 +21,7 @@ import com.epickrram.workshop.perf.app.message.Packet;
 import com.epickrram.workshop.perf.config.CommandLineArgs;
 import com.epickrram.workshop.perf.support.NanoTimer;
 import com.lmax.disruptor.RingBuffer;
+import org.performancehints.SpinHint;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +113,7 @@ public final class InputReader
         final long stopSpinningAt = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(10L);
         while(System.nanoTime() < stopSpinningAt)
         {
-            // spin
+            SpinHint.spinLoopHint();
         }
     }
 }
