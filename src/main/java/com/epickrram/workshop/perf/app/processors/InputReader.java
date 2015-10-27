@@ -52,69 +52,69 @@ public final class InputReader
 
     public void processFiles()
     {
-        System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
-        for(int i = 0; i < numberOfIterations; i++)
+        final File inputFile = new File(commandLineArgs.getInputFile());
+        try (final FileChannel fileChannel = open(inputFile.toPath(), READ))
         {
-            if(i == commandLineArgs.getNumberOfWarmups())
-            {
-                System.out.println("Warm-up complete at " + new Date());
-                System.out.println("Pausing for 10 seconds...");
-                THREADS.sleep(10L, TimeUnit.SECONDS);
-                System.out.println("Executing test at " + new Date());
-            }
-            processSingleFile(new File(commandLineArgs.getInputFile()), i == numberOfIterations - 1);
-        }
-    }
+            final MappedByteBuffer mappedFile = fileChannel.map(READ_ONLY, 0L, inputFile.length());
+            mappedFile.load();
 
-    private void processSingleFile(final File inputFile, final boolean isLastIteration)
-    {
-        try
-        {
-            try(final FileChannel fileChannel = open(inputFile.toPath(), READ))
+            System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
+            for (int i = 0; i < numberOfIterations; i++)
             {
-                final MappedByteBuffer mappedFile = fileChannel.map(READ_ONLY, 0L, inputFile.length());
-                mappedFile.load();
-
-                for (int recordIndex = 0; recordIndex < commandLineArgs.getNumberOfRecords(); recordIndex++)
+                if (i == commandLineArgs.getNumberOfWarmups())
                 {
-                    if (!messageSink.hasAvailableCapacity(1))
-                    {
-                        throw new RuntimeException("RingBuffer full!");
-                    }
-                    final long sequence = messageSink.next();
-
-                    try
-                    {
-                        final Packet packet = messageSink.get(sequence);
-                        packet.reset();
-                        packet.setSequenceInFile(recordIndex);
-                        packet.setSequence(sequence);
-                        final boolean isLastInFile = recordIndex == commandLineArgs.getNumberOfRecords() - 1;
-                        packet.setLastInFile(isLastInFile);
-                        packet.setReceivedNanoTime(nanoTimer.nanoTime());
-                        packet.setLastInStream(isLastInFile && isLastIteration);
-                        mappedFile.position(recordIndex * commandLineArgs.getRecordLength());
-                        mappedFile.limit(mappedFile.position() + commandLineArgs.getRecordLength());
-                        packet.getPayload().put(mappedFile);
-                    }
-                    finally
-                    {
-                        messageSink.publish(sequence);
-                    }
-                    introduceMessagePublishDelay();
+                    System.out.println("Warm-up complete at " + new Date());
+                    System.out.println("Pausing for 10 seconds...");
+                    THREADS.sleep(10L, TimeUnit.SECONDS);
+                    System.out.println("Executing test at " + new Date());
                 }
+
+                processSingleFile(mappedFile, i == numberOfIterations - 1);
             }
         }
         catch (IOException e)
         {
             throw new RuntimeException("File operation failed", e);
         }
+
+    }
+
+    private void processSingleFile(final MappedByteBuffer mappedFile, final boolean isLastIteration)
+    {
+        for (int recordIndex = 0; recordIndex < commandLineArgs.getNumberOfRecords(); recordIndex++)
+        {
+            if (!messageSink.hasAvailableCapacity(1))
+            {
+                throw new RuntimeException("RingBuffer full!");
+            }
+            final long sequence = messageSink.next();
+
+            try
+            {
+                final Packet packet = messageSink.get(sequence);
+                packet.reset();
+                packet.setSequenceInFile(recordIndex);
+                packet.setSequence(sequence);
+                final boolean isLastInFile = recordIndex == commandLineArgs.getNumberOfRecords() - 1;
+                packet.setLastInFile(isLastInFile);
+                packet.setReceivedNanoTime(nanoTimer.nanoTime());
+                packet.setLastInStream(isLastInFile && isLastIteration);
+                mappedFile.position(recordIndex * commandLineArgs.getRecordLength());
+                mappedFile.limit(mappedFile.position() + commandLineArgs.getRecordLength());
+                packet.getPayload().put(mappedFile);
+            }
+            finally
+            {
+                messageSink.publish(sequence);
+            }
+            introduceMessagePublishDelay();
+        }
     }
 
     private void introduceMessagePublishDelay()
     {
         final long stopSpinningAt = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(10L);
-        while(System.nanoTime() < stopSpinningAt)
+        while (System.nanoTime() < stopSpinningAt)
         {
             SpinHint.spinLoopHint();
         }
