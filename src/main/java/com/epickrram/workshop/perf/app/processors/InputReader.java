@@ -26,6 +26,7 @@ import org.performancehints.SpinHint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -69,38 +70,40 @@ public final class InputReader
     {
         try
         {
-            final MappedByteBuffer mappedFile = open(inputFile.toPath(), READ).map(READ_ONLY, 0L, inputFile.length());
-            mappedFile.load();
-
-            for(int recordIndex = 0; recordIndex < commandLineArgs.getNumberOfRecords(); recordIndex++)
+            try(final FileChannel fileChannel = open(inputFile.toPath(), READ))
             {
-                if(!messageSink.hasAvailableCapacity(1))
-                {
-                    throw new RuntimeException("RingBuffer full!");
-                }
-                final long sequence = messageSink.next();
+                final MappedByteBuffer mappedFile = fileChannel.map(READ_ONLY, 0L, inputFile.length());
+                mappedFile.load();
 
-                try
+                for (int recordIndex = 0; recordIndex < commandLineArgs.getNumberOfRecords(); recordIndex++)
                 {
-                    final Packet packet = messageSink.get(sequence);
-                    packet.reset();
-                    packet.setSequenceInFile(recordIndex);
-                    packet.setSequence(sequence);
-                    final boolean isLastInFile = recordIndex == commandLineArgs.getNumberOfRecords() - 1;
-                    packet.setLastInFile(isLastInFile);
-                    packet.setReceivedNanoTime(nanoTimer.nanoTime());
-                    packet.setLastInStream(isLastInFile && isLastIteration);
-                    mappedFile.position(recordIndex * commandLineArgs.getRecordLength());
-                    mappedFile.limit(mappedFile.position() + commandLineArgs.getRecordLength());
-                    packet.getPayload().put(mappedFile);
+                    if (!messageSink.hasAvailableCapacity(1))
+                    {
+                        throw new RuntimeException("RingBuffer full!");
+                    }
+                    final long sequence = messageSink.next();
+
+                    try
+                    {
+                        final Packet packet = messageSink.get(sequence);
+                        packet.reset();
+                        packet.setSequenceInFile(recordIndex);
+                        packet.setSequence(sequence);
+                        final boolean isLastInFile = recordIndex == commandLineArgs.getNumberOfRecords() - 1;
+                        packet.setLastInFile(isLastInFile);
+                        packet.setReceivedNanoTime(nanoTimer.nanoTime());
+                        packet.setLastInStream(isLastInFile && isLastIteration);
+                        mappedFile.position(recordIndex * commandLineArgs.getRecordLength());
+                        mappedFile.limit(mappedFile.position() + commandLineArgs.getRecordLength());
+                        packet.getPayload().put(mappedFile);
+                    }
+                    finally
+                    {
+                        messageSink.publish(sequence);
+                    }
+                    introduceMessagePublishDelay();
                 }
-                finally
-                {
-                    messageSink.publish(sequence);
-                }
-                introduceMessagePublishDelay();
             }
-
         }
         catch (IOException e)
         {
