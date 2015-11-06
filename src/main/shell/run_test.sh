@@ -22,4 +22,4 @@ if [ "$1" != "" ]; then
     echo "Using test label $1"
 fi
 
-$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 1000 -w 100 -n 4000 -r DETAILED -r LONG $TEST_LABEL_ARG | tee output.log
+$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 1000 -w 300 -n 4000 -r DETAILED -r LONG $TEST_LABEL_ARG | tee output.log
