@@ -50,6 +50,10 @@ public final class HistogramReporter
                             final Set<ReportFormat> reportFormats,
                             final String histogramTitle) throws IOException
     {
+        if (histogram.getTotalCount() == 0L)
+        {
+            return;
+        }
         for (final ReportFormat reportFormat : reportFormats)
         {
             switch (reportFormat)
