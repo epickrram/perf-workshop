@@ -11,7 +11,7 @@ LIB_LOCATION="../../../build/libs/perf-workshop-all-0.0.1.jar"
 echo "Executing test with:"
 $JAVA -version
 DEFAULT_JVM_OPTS="-XX:+UnlockDiagnosticVMOptions -XX:GuaranteedSafepointInterval=600000"
-JVM_OPTS="$DEFAULT_JVM_OPTS -XX:+DisableExplicitGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+PrintTenuringDistribution -XX:-UseBiasedLocking"
+JVM_OPTS="$DEFAULT_JVM_OPTS -XX:-TieredCompilation -XX:+DisableExplicitGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+PrintTenuringDistribution -XX:-UseBiasedLocking"
 EXEC_PREFIX=""
 
 echo "JVM_OPTS: $JVM_OPTS"
@@ -22,4 +22,4 @@ if [ "$1" != "" ]; then
     echo "Using test label $1"
 fi
 
-$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 1000 -w 300 -n 4000 -r DETAILED -r LONG $TEST_LABEL_ARG | tee output.log
+$EXEC_PREFIX $JAVA -Xmx4g -Xms4g $JVM_OPTS -Xloggc:perf-workshop-gc.log -jar $LIB_LOCATION -i 2500 -w 300 -n 4000 -r DETAILED -r LONG $TEST_LABEL_ARG | tee output.log
