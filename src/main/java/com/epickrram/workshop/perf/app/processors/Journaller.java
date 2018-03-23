@@ -39,6 +39,7 @@ public final class Journaller
 
     private FileChannel channel;
     private long position = 0;
+    private boolean setThreadName = false;
 
     public Journaller(final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs, final boolean enabled)
     {
@@ -49,6 +50,7 @@ public final class Journaller
 
     public void init() throws IOException
     {
+        System.out.println("Initialising journal files");
         final File journalFile = new File(commandLineArgs.getJournalFile());
         if(!journalFile.exists())
         {
@@ -74,6 +76,10 @@ public final class Journaller
 
     public void process(final Packet packet)
     {
+        if (!setThreadName)
+        {
+            Thread.currentThread().setName("Journaller");
+        }
         if(!enabled)
         {
             return;
