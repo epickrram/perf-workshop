@@ -19,6 +19,8 @@ package com.epickrram.workshop.perf.support;
 
 import net.openhft.affinity.Affinity;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.TimeUnit;
@@ -37,23 +39,44 @@ public enum Threads
 
     public void setCurrentThreadAffinity(final int... cpus)
     {
-        if(cpus != null && cpus.length != 0)
-        {
-            final BitSet requiredAffinity = cpuListToBitMask(cpus);
-            Affinity.setAffinity(requiredAffinity);
+        if (cpus.length == 0) {
+            return;
+        }
+        if (cpus.length != 1) {
+            throw new UnsupportedOperationException();
+        }
 
-            if(!requiredAffinity.equals(Affinity.getAffinity()))
-            {
-                throw new IllegalStateException("Unable to set CPU affinity");
-            }
+        ProcessBuilder builder = new ProcessBuilder("taskset", "-cp",
+          Integer.toString(cpus[0]), Integer.toString(getCurrentThreadId()));
 
+        try {
+            builder.start().waitFor();
             System.out.println("Set affinity for thread " + Thread.currentThread().getName() + " to " + Arrays.toString(cpus));
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
         }
     }
 
     public int getCurrentThreadId()
     {
-        return Affinity.getThreadId();
+        try
+        {
+            // TODO: if Java 9, then use ProcessHandle.
+            final String pidPorpertyValue = System.getProperty("sun.java.launcher.pid");
+
+            if (null != pidPorpertyValue)
+            {
+                return Integer.parseInt(pidPorpertyValue);
+            }
+
+            final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+
+            return Integer.parseInt(jvmName.split("@")[0]);
+        }
+        catch (final Throwable ex)
+        {
+            return -1;
+        }
     }
 
     public void sleep(final long duration, final TimeUnit unit)
