@@ -21,8 +21,11 @@ import net.openhft.affinity.Affinity;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public enum Threads
@@ -61,17 +64,23 @@ public enum Threads
     {
         try
         {
-            // TODO: if Java 9, then use ProcessHandle.
-            final String pidPorpertyValue = System.getProperty("sun.java.launcher.pid");
+            final List<String> strings = Files.readAllLines(Paths.get("/proc/self/status"));
+            return Integer.parseInt(strings.stream().filter(s -> s.startsWith("Pid:")).map(s -> {
+                return s.split("\\s+")[1];
+            }).findAny().get());
 
-            if (null != pidPorpertyValue)
-            {
-                return Integer.parseInt(pidPorpertyValue);
-            }
-
-            final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-
-            return Integer.parseInt(jvmName.split("@")[0]);
+//
+//            // TODO: if Java 9, then use ProcessHandle.
+//            final String pidPorpertyValue = System.getProperty("sun.java.launcher.pid");
+//
+//            if (null != pidPorpertyValue)
+//            {
+//                return Integer.parseInt(pidPorpertyValue);
+//            }
+//
+//            final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+//
+//            return Integer.parseInt(jvmName.split("@")[0]);
         }
         catch (final Throwable ex)
         {

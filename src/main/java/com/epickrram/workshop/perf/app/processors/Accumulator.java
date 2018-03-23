@@ -42,6 +42,8 @@ public final class Accumulator
     private int streamNumber = 0;
     private long previousMessageNanoTime;
 
+    private boolean setThreadName = false;
+
     public Accumulator(final Histogram[] messageTransitTimeHistograms, final Histogram[] interMessageTimeHistograms,
                        final NanoTimer nanoTimer, final CommandLineArgs commandLineArgs)
     {
@@ -53,6 +55,10 @@ public final class Accumulator
 
     public void process(final Packet packet)
     {
+        if (!setThreadName) {
+            Thread.currentThread().setName("Accumulator");
+            setThreadName = true;
+        }
         final long nanoTime = nanoTimer.nanoTime();
         if(packet.getSequenceInFile() != 0)
         {

@@ -52,6 +52,7 @@ public final class InputReader
 
     public void processFiles()
     {
+        Thread.currentThread().setName("Producer");
         final File inputFile = new File(commandLineArgs.getInputFile());
         try (final FileChannel fileChannel = open(inputFile.toPath(), READ))
         {
