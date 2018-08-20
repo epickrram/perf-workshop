@@ -55,7 +55,8 @@ public final class Accumulator
 
     public void process(final Packet packet)
     {
-        if (!setThreadName) {
+        if (!setThreadName)
+        {
             Thread.currentThread().setName("Accumulator");
             setThreadName = true;
         }
