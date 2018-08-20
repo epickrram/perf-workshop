@@ -59,7 +59,7 @@ public final class InputReader
             final MappedByteBuffer mappedFile = fileChannel.map(READ_ONLY, 0L, inputFile.length());
             mappedFile.load();
 
-//            System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
+            System.out.println("Producer thread has pid: " + THREADS.getCurrentThreadId());
             for (int i = 0; i < numberOfIterations; i++)
             {
                 if (i == commandLineArgs.getNumberOfWarmups())

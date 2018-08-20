@@ -45,7 +45,7 @@ public final class ThreadAffinityEventHandler implements EventHandler<Packet>, L
     @Override
     public void onStart()
     {
-//        System.out.println(processName + " thread has pid: " + THREADS.getCurrentThreadId());
+        System.out.println(processName + " thread has pid: " + THREADS.getCurrentThreadId());
         if(cpuAffinity != null && cpuAffinity.length != 0)
         {
             THREADS.setCurrentThreadAffinity(cpuAffinity);
