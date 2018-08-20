@@ -66,7 +66,7 @@ public enum Threads
     {
         try
         {
-            final List<String> strings = Files.readAllLines(Paths.get("/proc/self/status"));
+            final List<String> strings = Files.readAllLines(Paths.get("/proc/thread-self/status"));
             return Integer.parseInt(strings.stream().filter(s -> s.startsWith("Pid:")).map(s -> {
                 return s.split("\\s+")[1];
             }).findAny().get());
