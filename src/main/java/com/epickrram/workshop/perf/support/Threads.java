@@ -17,10 +17,7 @@ package com.epickrram.workshop.perf.support;
 //////////////////////////////////////////////////////////////////////////////////
 
 
-import net.openhft.affinity.Affinity;
-
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -42,20 +39,25 @@ public enum Threads
 
     public void setCurrentThreadAffinity(final int... cpus)
     {
-        if (cpus.length == 0) {
+        if (cpus.length == 0)
+        {
             return;
         }
-        if (cpus.length != 1) {
+        if (cpus.length != 1)
+        {
             throw new UnsupportedOperationException();
         }
 
         ProcessBuilder builder = new ProcessBuilder("taskset", "-cp",
           Integer.toString(cpus[0]), Integer.toString(getCurrentThreadId()));
 
-        try {
+        try
+        {
             builder.start().waitFor();
             System.out.println("Set affinity for thread " + Thread.currentThread().getName() + " to " + Arrays.toString(cpus));
-        } catch (InterruptedException | IOException e) {
+        }
+        catch (InterruptedException | IOException e)
+        {
             e.printStackTrace();
         }
     }
